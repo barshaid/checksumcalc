@@ -34,6 +34,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Add easter egg listeners
     initializeEasterEgg();
+    initializeUnloadPrompt(); // new: prompt on page exit to optionally save
     
     // Keyboard shortcuts
     document.addEventListener('keydown', function(e) {
@@ -140,31 +141,45 @@ function addItem() {
     
     itemDiv.innerHTML = `
         <div class="item-header">
+            <button type="button" class="collapse-item-btn" onclick="toggleItemCollapse(${itemNumber}, this)" aria-expanded="true">▼</button>
             <span class="item-label">Item ${itemNumber}</span>
+            <button type="button" class="remove-item-btn" onclick="removeItem(${itemNumber})">Remove</button>
         </div>
-        <div class="form-row four-columns">
-            <div class="form-group">
-                <label for="item_name_${itemNumber}">Item Name:</label>
-                <input type="text" id="item_name_${itemNumber}" name="item_name_${itemNumber}" placeholder="Product Name">
-            </div>
-            <div class="form-group">
-                <label for="item_amount_${itemNumber}">Item Amount:</label>
-                <input type="text" id="item_amount_${itemNumber}" name="item_amount_${itemNumber}" placeholder="0.00" onchange="calculateTotal()">
-            </div>
-            <div class="form-group">
-                <label for="item_quantity_${itemNumber}">Quantity:</label>
-                <input type="text" id="item_quantity_${itemNumber}" name="item_quantity_${itemNumber}" placeholder="1" value="1" onchange="calculateTotal()">
-            </div>
-            <div class="form-group">
-                <label>Item Total:</label>
-                <input type="text" id="item_total_${itemNumber}" placeholder="0.00" readonly class="auto-calculated">
+        <div class="item-body">
+            <div class="form-row four-columns">
+                <div class="form-group">
+                    <label for="item_name_${itemNumber}">Item Name:</label>
+                    <input type="text" id="item_name_${itemNumber}" name="item_name_${itemNumber}" placeholder="Product Name">
+                </div>
+                <div class="form-group">
+                    <label for="item_amount_${itemNumber}">Item Amount:</label>
+                    <input type="text" id="item_amount_${itemNumber}" name="item_amount_${itemNumber}" placeholder="0.00" onchange="calculateTotal()">
+                </div>
+                <div class="form-group">
+                    <label for="item_quantity_${itemNumber}">Quantity:</label>
+                    <input type="text" id="item_quantity_${itemNumber}" name="item_quantity_${itemNumber}" placeholder="1" value="1" onchange="calculateTotal()">
+                </div>
+                <div class="form-group">
+                    <label>Item Total:</label>
+                    <input type="text" id="item_total_${itemNumber}" placeholder="0.00" readonly class="auto-calculated">
+                </div>
             </div>
         </div>
-        <button type="button" class="remove-item-btn" onclick="removeItem(${itemNumber})">Remove</button>
     `;
     
     container.appendChild(itemDiv);
-    itemCounter = Math.max(itemCounter, itemNumber); // Update counter to highest number
+    itemCounter = Math.max(itemCounter, itemNumber);
+
+    // Prefill with sample data for convenience (only for items beyond the first)
+    if (itemNumber > 1) {
+        const nameField = document.getElementById(`item_name_${itemNumber}`);
+        const amountField = document.getElementById(`item_amount_${itemNumber}`);
+        const quantityField = document.getElementById(`item_quantity_${itemNumber}`);
+        if (nameField) nameField.value = `Sample Item ${itemNumber}`;
+        if (amountField) amountField.value = (itemNumber * 10).toFixed(2);
+        if (quantityField) quantityField.value = '1';
+    }
+
     calculateTotal();
 }
 
@@ -905,29 +920,20 @@ function fillSampleData() {
     const dobField = document.getElementById('dateOfBirth');
     if (dobField) dobField.value = '1990-01-01'; // YYYY-MM-DD format
     
-    // Add a second sample item
-    addItem();
-    document.getElementById('item_name_2').value = 'Sample Product 2';
-    document.getElementById('item_amount_2').value = '50.00';
-    document.getElementById('item_quantity_2').value = '2';
+    // Removed automatic second item addition per user request
     
     // Sample custom fields
-    // Clear existing custom fields first
     const customFieldsContainer = document.getElementById('customFields');
     customFieldsContainer.innerHTML = '';
     customFieldCounter = 0;
-    
-    // Add sample custom fields
     addCustomField();
     document.getElementById('customField1').value = 'affiliate-xyz';
     addCustomField();
     document.getElementById('customField2').value = 'promo-2024';
     
     generateTimestamp();
-    calculateTotal(); // Calculate totals after filling data
+    calculateTotal();
 
-    // Clear validation error styling for all filled (non-credential) fields.
-    // Preserve errors on credential fields so user is reminded to enter them.
     const credentialIds = new Set(['merchant_id','merchant_site_id','secretKey']);
     document.querySelectorAll('.form-group.error').forEach(group => {
         const inputs = Array.from(group.querySelectorAll('input, select, textarea'));
@@ -936,7 +942,6 @@ function fillSampleData() {
             const hasValue = inputs.some(el => el.value && el.value.trim() !== '');
             if (hasValue) {
                 group.classList.remove('error');
-                // Removed adding of 'success' class per user request (no green flare)
             }
         }
     });
@@ -1034,17 +1039,39 @@ function saveFormData() {
     }
 }
 
-// Toggle localStorage functionality
-function toggleLocalStorage() {
-    const enabled = document.getElementById('enableLocalStorage').checked;
-    if (!enabled) {
-        // Clear saved data when disabled
-        try {
-            localStorage.removeItem('nuvei_payment_form');
-        } catch (error) {
-            console.error('Error clearing localStorage:', error);
+function initializeUnloadPrompt() {
+    let awaitingStay = false;
+    window.addEventListener('beforeunload', function(e) {
+        const autoBox = document.getElementById('enableLocalStorage');
+        const form = document.getElementById('payment-form');
+        if (!autoBox || !form) return;
+        if (autoBox.checked) return; // already enabled
+        // Detect any meaningful user-entered data
+        const hasData = Array.from(form.querySelectorAll('input, textarea, select'))
+            .some(el => !['checkbox','radio','button','submit','reset','hidden'].includes(el.type) && el.value && el.value.trim() !== '');
+        if (!hasData) return;
+        // Set returnValue to trigger the browser's native prompt (works on bookmark navigation)
+        const msg = 'You have unsaved form data. Leave page or stay to enable auto-save?';
+        e.preventDefault();
+        e.returnValue = msg; // Standard
+        awaitingStay = true; // If user cancels (Stay), we will ask about enabling auto-save
+        return msg;
+    });
+
+    // After the native prompt, if the user stayed, visibility returns to visible
+    document.addEventListener('visibilitychange', () => {
+        if (awaitingStay && document.visibilityState === 'visible') {
+            awaitingStay = false;
+            const autoBox = document.getElementById('enableLocalStorage');
+            if (autoBox && !autoBox.checked) {
+                if (confirm('Enable auto-save and store current data for next time?')) {
+                    autoBox.checked = true;
+                    try { saveFormData(); } catch(_) {}
+                    showMessage('Auto-save enabled.', 'info');
+                }
+            }
         }
-    }
+    });
 }
 
 // Load form data from localStorage (if available and enabled)
@@ -1242,4 +1269,22 @@ if (typeof module !== 'undefined' && module.exports) {
         generateUniqueId,
         toggleLocalStorage
     };
+}
+
+function toggleItemCollapse(itemNumber, btn) {
+    const body = document.querySelector(`#item-${itemNumber} .item-body`);
+    if (!body) return;
+    const isHidden = body.style.display === 'none';
+    body.style.display = isHidden ? '' : 'none';
+    btn.textContent = isHidden ? '▼' : '▶';
+    btn.setAttribute('aria-expanded', isHidden ? 'true' : 'false');
+}
+
+function toggleItemsSection(btn) {
+    const container = document.getElementById('itemsContainer');
+    if (!container) return;
+    const isHidden = container.style.display === 'none';
+    container.style.display = isHidden ? '' : 'none';
+    btn.textContent = isHidden ? '▼' : '▶';
+    btn.setAttribute('aria-expanded', isHidden ? 'true' : 'false');
 }

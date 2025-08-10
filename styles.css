@@ -1311,26 +1311,76 @@ footer p:last-child {
     box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
 
-/* Responsive adjustments for items */
-@media (max-width: 768px) {
-    .form-row.four-columns {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 0.75rem;
-    }
-    
-    .item-row {
-        padding: 0.75rem;
-    }
-    
-    .section-header {
-        flex-direction: column;
-        gap: 0.5rem;
-        align-items: stretch;
-    }
+/* Arrow (collapse) button styles */
+.collapse-item-btn, .collapse-section-btn, .collapse-items-btn {
+    appearance: none;
+    background: var(--bg-section);
+    border: 1.5px solid var(--border-section);
+    color: var(--text-primary);
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    margin-right: 0.6rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    line-height: 1;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    font-family: inherit;
 }
 
-@media (max-width: 480px) {
-    .form-row.four-columns {
-        grid-template-columns: 1fr;
-    }
+.item-header .collapse-item-btn { margin-right: 0.75rem; }
+
+.collapse-item-btn:hover, .collapse-section-btn:hover {
+    background: var(--accent-color);
+    color: #fff;
+    border-color: var(--accent-color);
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
 }
+
+.collapse-item-btn:focus-visible, .collapse-section-btn:focus-visible {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(66,153,225,0.35);
+}
+
+.collapse-item-btn:active, .collapse-section-btn:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 3px -1px rgba(0,0,0,0.2);
+}
+
+/* Parent items section collapse button styling (reuse arrow styles) */
+.collapse-items-btn { /* parent */
+    appearance:none;
+    background: var(--bg-section);
+    border:1.5px solid var(--border-section);
+    color: var(--text-primary);
+    width:2rem; height:2rem;
+    display:flex; align-items:center; justify-content:center;
+    padding:0; margin:0 .6rem 0 0;
+    border-radius:8px; font-size:.85rem; font-weight:600; cursor:pointer; line-height:1;
+    transition:background-color .2s,color .2s,border-color .2s,transform .2s, box-shadow .2s;
+    font-family:inherit;
+}
+.collapse-items-btn:hover { background:var(--accent-color); color:#fff; border-color:var(--accent-color); box-shadow:0 4px 6px -1px rgba(0,0,0,.1),0 2px 4px -1px rgba(0,0,0,.06); }
+.collapse-items-btn:focus-visible { outline:none; border-color:var(--accent-color); box-shadow:0 0 0 3px rgba(66,153,225,.35); }
+.collapse-items-btn:active { transform:translateY(1px); box-shadow:0 2px 3px -1px rgba(0,0,0,.2); }
+.compact-mode .collapse-items-btn { width:1.75rem; height:1.75rem; font-size:.75rem; border-radius:6px; }
+
+/* Align item header contents: arrow + label + (optional remove) */
+.item-header { gap:.5rem; }
+.item-header .collapse-item-btn { flex:0 0 auto; }
+.item-header .item-label { flex:1 1 auto; display:inline-flex; align-items:center; }
+
+/* When item has remove button, keep consistent spacing */
+.item-row .remove-item-btn { top:.5rem; right:.5rem; }
+
+/* Adjust padding so label stays visually centered despite arrow */
+.item-row .item-header { padding-right:2.5rem; }
+
+/* Prevent layout jump on collapse */
+.item-row .item-body { transition: height .25s ease, opacity .2s ease; }

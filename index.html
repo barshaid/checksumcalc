@@ -24,7 +24,7 @@
             <button type="button" class="action-btn danger" onclick="clearForm()">Clear Form</button>
             <button type="button" class="action-btn success" onclick="fillSampleData()">Fill Sample Data</button>
             <label class="auto-save-toggle">
-                <input type="checkbox" id="enableLocalStorage" onchange="toggleLocalStorage()" checked>
+                <input type="checkbox" id="enableLocalStorage" onchange="toggleLocalStorage()">
                 Auto-save form data
             </label>
         </div>
@@ -70,32 +70,36 @@
                 <!-- Items Section -->
                 <div class="items-section">
                     <div class="section-header">
-                        <h4>Items</h4>
-                        <button type="button" class="btn btn-primary btn-sm" onclick="addItem()">Add Item</button>
+                        <button type="button" class="collapse-items-btn" onclick="toggleItemsSection(this)" aria-expanded="false" style="margin-right:8px;">▶</button>
+                        <h4 style="display:inline-block; margin:0;">Items</h4>
+                        <button type="button" class="btn btn-primary btn-sm" onclick="addItem()" style="margin-left:auto;">Add Item</button>
                     </div>
                     
-                    <div id="itemsContainer">
+                    <div id="itemsContainer" style="display:none;">
                         <!-- Item 1 (mandatory - cannot be removed) -->
                         <div class="item-row" id="item-1" data-item-number="1">
                             <div class="item-header">
+                                <button type="button" class="collapse-item-btn" onclick="toggleItemCollapse(1, this)" aria-expanded="false">▶</button>
                                 <span class="item-label">Item 1 (Required)</span>
                             </div>
-                            <div class="form-row four-columns">
-                                <div class="form-group">
-                                    <label for="item_name_1">Item Name:</label>
-                                    <input type="text" id="item_name_1" name="item_name_1" placeholder="Product Name" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="item_amount_1">Item Amount:</label>
-                                    <input type="text" id="item_amount_1" name="item_amount_1" placeholder="100.00" required onchange="calculateTotal()">
-                                </div>
-                                <div class="form-group">
-                                    <label for="item_quantity_1">Quantity:</label>
-                                    <input type="text" id="item_quantity_1" name="item_quantity_1" placeholder="1" value="1" required onchange="calculateTotal()">
-                                </div>
-                                <div class="form-group">
-                                    <label>Item Total:</label>
-                                    <input type="text" id="item_total_1" placeholder="100.00" readonly class="auto-calculated">
+                            <div class="item-body" style="display:none;">
+                                <div class="form-row four-columns">
+                                    <div class="form-group">
+                                        <label for="item_name_1">Item Name:</label>
+                                        <input type="text" id="item_name_1" name="item_name_1" placeholder="Product Name" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="item_amount_1">Item Amount:</label>
+                                        <input type="text" id="item_amount_1" name="item_amount_1" placeholder="100.00" required onchange="calculateTotal()">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="item_quantity_1">Quantity:</label>
+                                        <input type="text" id="item_quantity_1" name="item_quantity_1" placeholder="1" value="1" required onchange="calculateTotal()">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Item Total:</label>
+                                        <input type="text" id="item_total_1" placeholder="100.00" readonly class="auto-calculated">
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -394,7 +398,7 @@
 ⠀⠀⠀⠀⠀⣠⣶⣶⣅⣠⣶⠀⠒⠟⢁⡴⠋⠀⠀⠀⢹⣿⣿⡋⣧⢸⡇⡏⣀⣀⠀⠙⣿⣉⠙⢤⡄⠀⠀⠀
 ⠀⠀⣠⣴⣺⢿⣿⣿⡛⠛⠿⠿⣯⣷⡲⣶⣟⣻⡀⠀⣠⣿⣿⣖⣸⣨⣿⠿⠛⣻⣿⣶⣾⣾⠇⠀⠻⣄⠀⠀
 ⠀⣾⢟⠿⠿⢶⣮⡙⢏⢢⡀⢠⡌⣿⣿⡿⠟⡿⢳⣼⣿⣿⣿⣾⣿⣧⣤⣤⣤⣿⣿⣭⣿⠁⠀⠀⣀⣈⣧⠀
-⢺⣥⢿⠾⠿⠿⠿⡿⠚⢋⣠⠯⣿⢉⢉⠻⠾⠛⢿⣿⠻⠿⢛⢋⣤⣯⣭⠽⠶⣾⣻⢿⣻⢿⠶⢛⣻⡿⢽⠄
+⢺⣥⢿⠾⠿⠿⠿⡿⠚⢋⣠⠯⣿⢉⢉⠻⠾⠛⢿⣿⠻⠿⢛⣩⣤⣾⣭⠽⠶⣾⣻⢿⣻⢿⠶⢛⣻⡿⢽⠄
 
  __     __             _                                             _                          _       _                      
  \ \   / /            | |                                           | |                        | |     | |                     
