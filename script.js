@@ -280,12 +280,20 @@ function createChecksumString(data, secretKey) {
 // Generate cashier URL and calculate checksum
 async function generateCashierUrl() {
     try {
-        // Validate required fields first
-        const requiredFields = [
+        // Base required fields (always required)
+        const baseRequiredFields = [
             'merchant_id', 'merchant_site_id', 'secretKey', 'total_amount', 
             'currency', 'user_token_id', 'item_name_1', 'item_amount_1', 
-            'item_quantity_1', 'time_stamp', 'notify_url'
+            'item_quantity_1', 'time_stamp'
         ];
+        
+        let requiredFields = [...baseRequiredFields];
+        
+        // Add notify_url as required only if response URLs section is enabled
+        const responseUrlsEnabled = document.getElementById('enableResponseUrls')?.checked;
+        if (responseUrlsEnabled) {
+            requiredFields.push('notify_url');
+        }
         
         const missingFields = [];
         for (const field of requiredFields) {
@@ -435,12 +443,6 @@ function fillSampleData() {
     document.getElementById('city').value = 'New York';
     document.getElementById('state').value = 'NY';
     document.getElementById('zip').value = '10001';
-    
-    // Sample URLs (notify_url is required)
-    document.getElementById('success_url').value = 'https://example.com/success';
-    document.getElementById('error_url').value = 'https://example.com/error';
-    document.getElementById('pending_url').value = 'https://example.com/pending';
-    document.getElementById('notify_url').value = 'https://webhook.site/unique-id';
     
     // Sample custom fields
     document.getElementById('customField1').value = 'affiliate-xyz';
