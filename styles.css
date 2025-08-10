@@ -268,7 +268,7 @@ header p {
 /* Compact mode styles - dynamic grid layout */
 .compact-mode form {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: 2fr 1fr;
     gap: 20px;
     align-items: start;
 }
@@ -287,31 +287,52 @@ header p {
 }
 
 .compact-mode .form-row {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 10px;
     margin-bottom: 12px;
 }
 
 .compact-mode .form-row.three-columns,
 .compact-mode .form-row.four-columns {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
 }
 
-/* Form actions should span full width */
+/* Left column container for all data sections */
+.compact-mode .sections-container {
+    grid-column: 1;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    align-items: start;
+}
+
+/* All data filling sections go in left column - reset grid column */
+.compact-mode .section:not(.form-actions):not(.result-section) {
+    grid-column: auto;
+}
+
+/* Right column - Form actions and results */
 .compact-mode .form-actions {
-    grid-column: 1 / -1;
-    margin-top: 20px;
+    grid-column: 2;
+    grid-row: 1;
+    margin-top: 0;
+    position: sticky;
+    top: 20px;
+    z-index: 10;
 }
 
-/* Results section should also span full width */
 .compact-mode .result-section {
-    grid-column: 1 / -1;
+    grid-column: 2;
+    grid-row: 2;
     margin-top: 20px;
+    position: sticky;
+    top: 120px;
+    z-index: 9;
 }
 
-/* Items section should span full width due to complexity */
+/* Items section should be in left column */
 .compact-mode .items-section {
-    grid-column: 1 / -1;
+    grid-column: 1;
 }
 
 /* Single field sections can be smaller */
@@ -340,6 +361,27 @@ header p {
     .compact-mode form {
         grid-template-columns: 1fr;
         gap: 15px;
+    }
+    
+    /* Reset grid columns for mobile */
+    .compact-mode .form-actions,
+    .compact-mode .result-section,
+    .compact-mode .section:not(.form-actions):not(.result-section),
+    .compact-mode .items-section {
+        grid-column: 1;
+        position: static;
+    }
+    
+    .compact-mode .form-actions {
+        grid-row: auto;
+        margin-top: 20px;
+        order: 1;
+    }
+    
+    .compact-mode .result-section {
+        grid-row: auto;
+        margin-top: 20px;
+        order: 999;
     }
 }
 
