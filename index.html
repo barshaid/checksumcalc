@@ -49,6 +49,13 @@
                     <label for="secretKey">Secret Key:</label>
                     <input type="text" id="secretKey" name="secretKey" placeholder="Secret Key" required>
                 </div>
+                <div class="form-group">
+                    <label for="hash_algorithm">Hash Algorithm:</label>
+                    <select id="hash_algorithm" name="hash_algorithm">
+                        <option value="sha256" selected>SHA-256</option>
+                        <option value="md5">MD5</option>
+                    </select>
+                </div>
             </div>
 
             <!-- Transaction Details Section -->
@@ -631,7 +638,7 @@
                         <textarea id="concatenated-string" readonly></textarea>
                     </div>
                     <div class="result-group">
-                        <label>SHA-256 Checksum:</label>
+                        <label id="checksum-label">SHA-256 Checksum:</label>
                         <input type="text" id="calculated-checksum" readonly>
                         <button type="button" onclick="copyToClipboard('calculated-checksum')">Copy</button>
                     </div>

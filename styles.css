@@ -47,6 +47,30 @@
     --error-color: #fc8181;
 }
 
+/* Obfuscated hidden theme */
+[data-theme="x1"] {
+    --bg-primary: #ffc0cb;
+    --bg-secondary: #ffb6c1;
+    --bg-section: #ffe4e1;
+    --text-primary: #d12a73;
+    --text-secondary: #b84c84;
+    --text-heading: #8f2c60;
+    --border-color: #ffb6c1;
+    --border-section: #ff69b4;
+    --accent-color: #d12a73;
+    --accent-hover: #8f2c60;
+    --accent-secondary: #ffc0cb;
+    --shadow: rgba(209, 42, 115, 0.2);
+    --result-bg: #fff0f5;
+    --success-color: #d96fa7;
+    --warning-color: #d9a24f;
+    --error-color: #d12a73;
+}
+[data-theme="x1"] .section h3:before { background: linear-gradient(45deg,#d12a73,#ff69b4,#ffc0cb); }
+[data-theme="x1"] .result-section h3:before { background: linear-gradient(45deg,#ff69b4,#d12a73); }
+[data-theme="x1"] header { background: linear-gradient(135deg,#ffb6c1,#d12a73,#8f2c60); position: relative; }
+[data-theme="x1"] header::after { content: ''; }
+
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
     line-height: 1.6;
@@ -1074,313 +1098,166 @@ footer p:last-child {
 }
 
 /* Special theme that shall remain unnamed */
-[data-theme="pink"] {
-    --bg-primary: #ffc0cb;
-    --bg-secondary: #ffb6c1;
-    --bg-section: #ffe4e1;
-    --text-primary: #ff1493;
-    --text-secondary: #ff69b4;
-    --text-heading: #c71585;
-    --border-color: #ffb6c1;
-    --border-section: #ff69b4;
-    --accent-color: #ff1493;
-    --accent-hover: #c71585;
-    --accent-secondary: #ffc0cb;
-    --shadow: rgba(255, 20, 147, 0.2);
-    --result-bg: #fff0f5;
-    --success-color: #ff69b4;
-    --warning-color: #ffa500;
-    --error-color: #ff1493;
-}
+/* ...existing code... */
 
-[data-theme="pink"] .section h3:before {
-    background: linear-gradient(45deg, #ff1493, #ff69b4, #ffc0cb);
-    content: '🎀';
-    color: white;
-    text-align: center;
-    line-height: 1.25rem;
-    font-size: 0.8rem;
-}
-
-[data-theme="pink"] .result-section h3:before {
-    content: '✨';
-    background: linear-gradient(45deg, #ff69b4, #ff1493);
-}
-
-[data-theme="pink"] header {
-    background: linear-gradient(135deg, #ff69b4, #ff1493, #c71585);
-    position: relative;
-}
-
-[data-theme="pink"] header::after {
-    content: '🌸 ✨ 🎀 ✨ 🌸';
-    position: absolute;
-    bottom: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 0.9rem;
-    opacity: 0.8;
-}
-
-/* Responsive design */
-@media (max-width: 768px) {
-    .container {
-        padding: 10px;
-    }
-    
-    .header-controls {
-        position: static;
-        text-align: center;
-        margin-bottom: 15px;
-    }
-    
-    .quick-actions {
-        flex-direction: column;
-        align-items: center;
-        gap: 10px;
-        padding: 10px;
-    }
-    
-    .action-btn {
-        width: 100%;
-        max-width: 200px;
-    }
-    
-    .form-row,
-    .form-row.three-columns,
-    .form-row.four-columns {
-        grid-template-columns: 1fr;
-        gap: 10px;
-    }
-    
-    .compact-mode form {
-        grid-template-columns: 1fr;
-        gap: 15px;
-    }
-    
-    .compact-mode .section {
-        padding: 12px;
-    }
-    
-    .compact-mode .form-row,
-    .compact-mode .form-row.three-columns,
-    .compact-mode .form-row.four-columns {
-        grid-template-columns: 1fr;
-        gap: 8px;
-    }
-    
-    .form-actions {
-        flex-direction: column;
-        align-items: center;
-        gap: 8px;
-    }
-    
-    .form-actions button {
-        width: 100%;
-        max-width: 220px;
-        padding: 10px 16px;
-    }
-    
-    header h1 {
-        font-size: 1.8em;
-    }
-    
-    .section {
-        padding: 15px;
-    }
-    
-    .additional-param {
-        flex-direction: column;
-        align-items: stretch;
-    }
-    
-    .view-controls {
-        justify-content: center;
-    }
-}
-
-@media (max-width: 480px) {
-    .container {
-        padding: 10px;
-    }
-    
-    header h1 {
-        font-size: 1.6em;
-    }
-    
-    .form-actions button {
-        min-width: auto;
-        padding: 10px 20px;
-    }
-    
-    .webhook-link {
-        display: block;
-        margin: 5px 0;
-        text-align: center;
-    }
-}
-
-@media (min-width: 769px) and (max-width: 1024px) {
-    .form-row.four-columns {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-/* Grid layout improvements */
-.form-row.three-columns {
-    grid-template-columns: repeat(3, 1fr);
-}
-
-.form-row.four-columns {
-    grid-template-columns: repeat(4, 1fr);
-}
-
-/* Items Section Styles */
-.items-section {
-    margin-bottom: 2rem;
-}
-
-.section-header {
+/* Item rows & collapse controls */
+/* ============================================= */
+.items-section .items-header, .items-header { /* container header (if exists) */
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: 1rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 2px solid var(--border-section);
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
 }
 
-.section-header h4 {
-    color: var(--text-heading);
-    font-size: 1.2rem;
-    margin: 0;
-}
-
-.item-row {
-    background: var(--bg-section);
-    border: 1.5px solid var(--border-section);
+.items-section .collapse-items-btn, .collapse-items-btn {
+    width: 2.25rem;
+    height: 2.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1.5px solid var(--border-color);
+    background: var(--bg-secondary);
+    color: var(--text-primary);
     border-radius: 8px;
-    padding: 1rem;
-    margin-bottom: 1rem;
-    position: relative;
+    cursor: pointer;
+    font-size: 1rem;
+    line-height: 1;
+    padding: 0;
     transition: all 0.2s ease;
+}
+
+.collapse-items-btn:hover,
+.collapse-items-btn:focus {
+    background: var(--accent-color);
+    color: #fff;
+    border-color: var(--accent-color);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(66,153,225,0.35);
+    transform: translateY(-1px);
+}
+
+/* Individual item row */
+.item-row {
+    border: 1.5px solid var(--border-color);
+    background: var(--bg-section);
+    border-radius: 10px;
+    padding: 0.75rem 0.85rem 0.85rem;
+    position: relative;
+    box-shadow: 0 1px 2px 0 var(--shadow);
+    transition: all 0.25s ease;
+    animation: fadeIn 0.25s ease;
 }
 
 .item-row:hover {
     border-color: var(--accent-color);
-    box-shadow: 0 3px 6px -1px rgba(0, 0, 0, 0.12), 0 2px 4px -1px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 3px 6px -1px rgba(0,0,0,0.12), 0 2px 4px -1px rgba(0,0,0,0.08);
     transform: translateY(-1px);
 }
+
+.item-row + .item-row { margin-top: 0.75rem; }
 
 .item-header {
-    display: flex;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
     align-items: center;
-    margin-bottom: 1rem;
+    gap: 0.75rem;
+    margin-bottom: 0.65rem;
 }
 
-.item-label {
+.item-header .item-label {
     font-weight: 600;
     color: var(--text-heading);
-    font-size: 1rem;
+    flex: 1;
+    font-size: 0.95rem;
+    letter-spacing: -0.015em;
+    white-space: nowrap;
 }
 
-.remove-item-btn {
-    position: absolute;
-    top: 0.5rem;
-    right: 0.5rem;
-    background: var(--error-color);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 0.25rem 0.5rem;
-    font-size: 0.75rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-family: inherit;
-}
+/* Layout refinement: keep arrow and label on same row */
+.item-header { display: grid; grid-template-columns: auto 1fr auto; align-items: center; }
+.item-header .item-label { white-space: nowrap; }
 
-.remove-item-btn:hover {
-    background: #e53e3e;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 6px -1px rgba(245, 101, 101, 0.4), 0 2px 4px -1px rgba(245, 101, 101, 0.2);
-}
-
-.remove-item-btn:active {
-    transform: translateY(0);
-    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-}
-
-/* Arrow (collapse) button styles */
-.collapse-item-btn, .collapse-section-btn, .collapse-items-btn {
-    appearance: none;
-    background: var(--bg-section);
-    border: 1.5px solid var(--border-section);
-    color: var(--text-primary);
+.collapse-item-btn {
     width: 2rem;
     height: 2rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0;
-    margin-right: 0.6rem;
+    border: 1.5px solid var(--border-color);
+    background: var(--bg-secondary);
+    color: var(--text-primary);
     border-radius: 8px;
-    font-size: 0.85rem;
-    font-weight: 600;
     cursor: pointer;
+    font-size: 0.9rem;
     line-height: 1;
-    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    padding: 0;
+    transition: all 0.2s ease;
     font-family: inherit;
 }
 
-.item-header .collapse-item-btn { margin-right: 0.75rem; }
-
-.collapse-item-btn:hover, .collapse-section-btn:hover {
+.collapse-item-btn:hover,
+.collapse-item-btn:focus {
     background: var(--accent-color);
     color: #fff;
     border-color: var(--accent-color);
-    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
-}
-
-.collapse-item-btn:focus-visible, .collapse-section-btn:focus-visible {
     outline: none;
-    border-color: var(--accent-color);
     box-shadow: 0 0 0 3px rgba(66,153,225,0.35);
+    transform: translateY(-1px);
 }
 
-.collapse-item-btn:active, .collapse-section-btn:active {
-    transform: translateY(1px);
-    box-shadow: 0 2px 3px -1px rgba(0,0,0,0.2);
+.remove-item-btn {
+    background: var(--error-color);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 0.45rem 0.85rem;
+    font-size: 0.7rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    letter-spacing: 0.5px;
+    transition: all 0.2s ease;
 }
 
-/* Parent items section collapse button styling (reuse arrow styles) */
-.collapse-items-btn { /* parent */
-    appearance:none;
-    background: var(--bg-section);
-    border:1.5px solid var(--border-section);
-    color: var(--text-primary);
-    width:2rem; height:2rem;
-    display:flex; align-items:center; justify-content:center;
-    padding:0; margin:0 .6rem 0 0;
-    border-radius:8px; font-size:.85rem; font-weight:600; cursor:pointer; line-height:1;
-    transition:background-color .2s,color .2s,border-color .2s,transform .2s, box-shadow .2s;
-    font-family:inherit;
+.remove-item-btn:hover,
+.remove-item-btn:focus {
+    background: #e53e3e;
+    outline: none;
+    box-shadow: 0 4px 6px -1px rgba(245,101,101,0.4), 0 2px 4px -1px rgba(245,101,101,0.2);
+    transform: translateY(-1px);
 }
-.collapse-items-btn:hover { background:var(--accent-color); color:#fff; border-color:var(--accent-color); box-shadow:0 4px 6px -1px rgba(0,0,0,.1),0 2px 4px -1px rgba(0,0,0,.06); }
-.collapse-items-btn:focus-visible { outline:none; border-color:var(--accent-color); box-shadow:0 0 0 3px rgba(66,153,225,.35); }
-.collapse-items-btn:active { transform:translateY(1px); box-shadow:0 2px 3px -1px rgba(0,0,0,.2); }
-.compact-mode .collapse-items-btn { width:1.75rem; height:1.75rem; font-size:.75rem; border-radius:6px; }
 
-/* Align item header contents: arrow + label + (optional remove) */
-.item-header { gap:.5rem; }
-.item-header .collapse-item-btn { flex:0 0 auto; }
-.item-header .item-label { flex:1 1 auto; display:inline-flex; align-items:center; }
+/* Collapsible body */
+.item-body {
+    border-top: 1px dashed var(--border-color);
+    padding-top: 0.65rem;
+    transition: all 0.3s ease;
+}
 
-/* When item has remove button, keep consistent spacing */
-.item-row .remove-item-btn { top:.5rem; right:.5rem; }
+.item-body.collapsed { /* JS adds this when collapsed */
+    max-height: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    overflow: hidden !important;
+    opacity: 0;
+    border-top: 0;
+    margin-top: 0;
+}
 
-/* Adjust padding so label stays visually centered despite arrow */
-.item-row .item-header { padding-right:2.5rem; }
+/* Smooth height animation using max-height (approx) */
+.item-body { max-height: 1200px; overflow: hidden; }
 
-/* Prevent layout jump on collapse */
-.item-row .item-body { transition: height .25s ease, opacity .2s ease; }
+/* Compact mode refinements */
+.compact-mode .item-row { padding: 0.6rem 0.6rem 0.7rem; }
+.compact-mode .collapse-item-btn { width: 1.75rem; height: 1.75rem; font-size: 0.8rem; }
+.compact-mode .remove-item-btn { padding: 0.35rem 0.65rem; font-size: 0.6rem; }
+.compact-mode .item-header { margin-bottom: 0.5rem; }
+
+/* Dark / hidden theme inherit automatically through vars */
+
+/* Accessibility focus-visible refinement */
+.collapse-item-btn:focus-visible, .collapse-items-btn:focus-visible, .remove-item-btn:focus-visible {
+    box-shadow: 0 0 0 3px rgba(66,153,225,0.5);
+}

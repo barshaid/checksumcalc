@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeTheme();
     initializeCompactMode();
     initializeErrorHandling();
+    initializeAutoSave(); // NEW: set checkbox state from persistence before loading
     
     // Load saved form data
     loadFormData();
@@ -32,8 +33,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize total calculation
     calculateTotal();
     
-    // Add easter egg listeners
-    initializeEasterEgg();
+    // Add special theme listeners
+    initializeSpecialTheme();
     initializeUnloadPrompt(); // new: prompt on page exit to optionally save
     
     // Keyboard shortcuts
@@ -367,9 +368,19 @@ function getNextCustomFieldNumber() {
 }
 
 function addCustomField() {
-    const fieldNumber = getNextCustomFieldNumber();
+    const MAX_CUSTOM_FIELDS = 15;
     const container = document.getElementById('customFields');
-    
+    const existing = container ? container.querySelectorAll('[data-custom-field]').length : 0;
+    if (existing >= MAX_CUSTOM_FIELDS) {
+        showMessage(`Maximum of ${MAX_CUSTOM_FIELDS} custom fields reached.`, 'warning');
+        return;
+    }
+    const fieldNumber = getNextCustomFieldNumber();
+    // Safety: if fieldNumber would exceed cap, abort
+    if (fieldNumber > MAX_CUSTOM_FIELDS) {
+        showMessage(`Maximum of ${MAX_CUSTOM_FIELDS} custom fields reached.`, 'warning');
+        return;
+    }
     const fieldDiv = document.createElement('div');
     fieldDiv.className = 'additional-param';
     fieldDiv.id = `custom-field-${fieldNumber}`;
@@ -405,6 +416,20 @@ async function sha256(message) {
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
     return hashHex;
+}
+
+// MD5 hash function (manual implementation for environments without SubtleCrypto MD5)
+// Note: MD5 is NOT secure for production signing; provided only for legacy comparison/testing.
+function md5(message) {
+    function toUtf8Bytes(str){return new TextEncoder().encode(str);}    
+    function rotateLeft(lValue, iShiftBits) {return (lValue << iShiftBits) | (lValue >>> (32 - iShiftBits));}
+    function addUnsigned(lX, lY) {var lX4,lY4,lX8,lY8,lResult; lX8 = (lX & 0x80000000); lY8 = (lY & 0x80000000); lX4 = (lX & 0x40000000); lY4 = (lY & 0x40000000); lResult = (lX & 0x3FFFFFFF)+(lY & 0x3FFFFFFF); if (lX4 & lY4) return (lResult ^ 0x80000000 ^ lX8 ^ lY8); if (lX4 | lY4) { if (lResult & 0x40000000) return (lResult ^ 0xC0000000 ^ lX8 ^ lY8); else return (lResult ^ 0x40000000 ^ lX8 ^ lY8);} else { return (lResult ^ lX8 ^ lY8);} }
+    function F(x,y,z){return (x & y) | ((~x) & z);} function G(x,y,z){return (x & z) | (y & (~z));} function H(x,y,z){return x ^ y ^ z;} function I(x,y,z){return y ^ (x | (~z));}
+    function FF(a,b,c,d,x,s,ac){a=addUnsigned(a,addUnsigned(addUnsigned(F(b,c,d),x),ac));return addUnsigned(rotateLeft(a,s),b);} function GG(a,b,c,d,x,s,ac){a=addUnsigned(a,addUnsigned(addUnsigned(G(b,c,d),x),ac));return addUnsigned(rotateLeft(a,s),b);} function HH(a,b,c,d,x,s,ac){a=addUnsigned(a,addUnsigned(addUnsigned(H(b,c,d),x),ac));return addUnsigned(rotateLeft(a,s),b);} function II(a,b,c,d,x,s,ac){a=addUnsigned(a,addUnsigned(addUnsigned(I(b,c,d),x),ac));return addUnsigned(rotateLeft(a,s),b);}    
+    function convertToWordArray(utf8Bytes){var lWordCount; var lMessageLength = utf8Bytes.length; var lNumberOfWords_temp1=lMessageLength+8; var lNumberOfWords_temp2=(lNumberOfWords_temp1-(lNumberOfWords_temp1 % 64))/64; var lNumberOfWords=(lNumberOfWords_temp2+1)*16; var lWordArray=new Array(lNumberOfWords-1); var bytePosition=0; var byteCount=0; while(byteCount<lMessageLength){ lWordCount=(byteCount-(byteCount % 4))/4; bytePosition=(byteCount % 4)*8; lWordArray[lWordCount]=(lWordArray[lWordCount] | (utf8Bytes[byteCount]<<bytePosition)); byteCount++; } lWordCount=(byteCount-(byteCount % 4))/4; bytePosition=(byteCount % 4)*8; lWordArray[lWordCount]=lWordArray[lWordCount] | (0x80<<bytePosition); lWordArray[lNumberOfWords-2]=lMessageLength<<3; lWordArray[lNumberOfWords-1]=lMessageLength>>>29; return lWordArray; }
+    function wordToHex(lValue){var WordToHexValue="",WordToHexValue_temp="",lByte,lCount; for(lCount=0;lCount<=3;lCount++){ lByte=(lValue>>>(lCount*8)) & 255; WordToHexValue_temp="0"+lByte.toString(16); WordToHexValue += WordToHexValue_temp.substr(WordToHexValue_temp.length-2,2);} return WordToHexValue; }
+    var x = convertToWordArray(toUtf8Bytes(message)); var a=0x67452301; var b=0xEFCDAB89; var c=0x98BADCFE; var d=0x10325476; var S11=7,S12=12,S13=17,S14=22; var S21=5,S22=9,S23=14,S24=20; var S31=4,S32=11,S33=16,S34=23; var S41=6,S42=10,S43=15,S44=21; for (var k=0;k<x.length;k+=16){ var AA=a,BB=b,CC=c,DD=d; a=FF(a,b,c,d,x[k+0], S11,0xD76AA478); d=FF(d,a,b,c,x[k+1], S12,0xE8C7B756); c=FF(c,d,a,b,x[k+2], S13,0x242070DB); b=FF(b,c,d,a,x[k+3], S14,0xC1BDCEEE); a=FF(a,b,c,d,x[k+4], S11,0xF57C0FAF); d=FF(d,a,b,c,x[k+5], S12,0x4787C62A); c=FF(c,d,a,b,x[k+6], S13,0xA8304613); b=FF(b,c,d,a,x[k+7], S14,0xFD469501); a=FF(a,b,c,d,x[k+8], S11,0x698098D8); d=FF(d,a,b,c,x[k+9], S12,0x8B44F7AF); c=FF(c,d,a,b,x[k+10],S13,0xFFFF5BB1); b=FF(b,c,d,a,x[k+11],S14,0x895CD7BE); a=FF(a,b,c,d,x[k+12],S11,0x6B901122); d=FF(d,a,b,c,x[k+13],S12,0xFD987193); c=FF(c,d,a,b,x[k+14],S13,0xA679438E); b=FF(b,c,d,a,x[k+15],S14,0x49B40821); a=GG(a,b,c,d,x[k+1], S21,0xF61E2562); d=GG(d,a,b,c,x[k+6], S22,0xC040B340); c=GG(c,d,a,b,x[k+11],S23,0x265E5A51); b=GG(b,c,d,a,x[k+0], S24,0xE9B6C7AA); a=GG(a,b,c,d,x[k+5], S21,0xD62F105D); d=GG(d,a,b,c,x[k+10],S22,0x02441453); c=GG(c,d,a,b,x[k+15],S23,0xD8A1E681); b=GG(b,c,d,a,x[k+4], S24,0xE7D3FBC8); a=GG(a,b,c,d,x[k+9], S21,0x21E1CDE6); d=GG(d,a,b,c,x[k+14],S22,0xC33707D6); c=GG(c,d,a,b,x[k+3], S23,0xF4D50D87); b=GG(b,c,d,a,x[k+8], S24,0x455A14ED); a=GG(a,b,c,d,x[k+13],S21,0xA9E3E905); d=GG(d,a,b,c,x[k+2], S22,0xFCEFA3F8); c=GG(c,d,a,b,x[k+7], S23,0x676F02D9); b=GG(b,c,d,a,x[k+12],S24,0x8D2A4C8A); a=HH(a,b,c,d,x[k+5], S31,0xFFFA3942); d=HH(d,a,b,c,x[k+8], S32,0x8771F681); c=HH(c,d,a,b,x[k+11],S33,0x6D9D6122); b=HH(b,c,d,a,x[k+14],S34,0xFDE5380C); a=HH(a,b,c,d,x[k+1], S31,0xA4BEEA44); d=HH(d,a,b,c,x[k+4], S32,0x4BDECFA9); c=HH(c,d,a,b,x[k+7], S33,0xF6BB4B60); b=HH(b,c,d,a,x[k+10],S34,0xBEBFBC70); a=HH(a,b,c,d,x[k+13], S31,0x289B7EC6); d=HH(d,a,b,c,x[k+0], S32,0xEAA127FA); c=HH(c,d,a,b,x[k+3], S33,0xD4EF3085); b=HH(b,c,d,a,x[k+6], S34,0x04881D05); a=HH(a,b,c,d,x[k+9], S31,0xD9D4D039); d=HH(d,a,b,c,x[k+12],S32,0xE6DB99E5); c=HH(c,d,a,b,x[k+15],S33,0x1FA27CF8); b=HH(b,c,d,a,x[k+2], S34,0xC4AC5665); a=II(a,b,c,d,x[k+0], S41,0xF4292244); d=II(d,a,b,c,x[k+7], S42,0x432AFF97); c=II(c,d,a,b,x[k+14],S43,0xAB9423A7); b=II(b,c,d,a,x[k+5], S44,0xFC93A039); a=II(a,b,c,d,x[k+12],S41,0x655B59C3); d=II(d,a,b,c,x[k+3], S42,0x8F0CCC92); c=II(c,d,a,b,x[k+10],S43,0xFFEFF47D); b=II(b,c,d,a,x[k+1], S44,0x85845DD1); a=II(a,b,c,d,x[k+8], S41,0x6FA87E4F); d=II(d,a,b,c,x[k+15],S42,0xFE2CE6E0); c=II(c,d,a,b,x[k+6], S43,0xA3014314); b=II(b,c,d,a,x[k+13],S44,0x4E0811A1); a=II(a,b,c,d,x[k+4], S41,0xF7537E82); d=II(d,a,b,c,x[k+11],S42,0xBD3AF235); c=II(c,d,a,b,x[k+2], S43,0x2AD7D2BB); b=II(b,c,d,a,x[k+9], S44,0xEB86D391); a=addUnsigned(a,AA); b=addUnsigned(b,BB); c=addUnsigned(c,CC); d=addUnsigned(d,DD); }
+    return (wordToHex(a)+wordToHex(b)+wordToHex(c)+wordToHex(d)).toLowerCase();
 }
 
 // Get form data as object
@@ -673,6 +698,28 @@ function clearFieldError(field) {
     }
 }
 
+// Auto-save preference initialization
+function initializeAutoSave() {
+    const box = document.getElementById('enableLocalStorage');
+    if (!box) return;
+    const enabled = localStorage.getItem('nuvei_auto_save_enabled') === 'true';
+    box.checked = enabled;
+}
+
+// Toggle auto-save (called from checkbox onchange in HTML)
+function toggleLocalStorage() {
+    const box = document.getElementById('enableLocalStorage');
+    if (!box) return;
+    if (box.checked) {
+        localStorage.setItem('nuvei_auto_save_enabled', 'true');
+        saveFormData(); // immediately persist current state
+        showMessage('Auto-save enabled', 'info');
+    } else {
+        localStorage.setItem('nuvei_auto_save_enabled', 'false');
+        showMessage('Auto-save disabled', 'info');
+    }
+}
+
 // Generate cashier URL and calculate checksum
 async function generateCashierUrl() {
     try {
@@ -721,12 +768,23 @@ async function generateCashierUrl() {
         
         // Create concatenated string for checksum using cleaned data
         const concatenatedString = createChecksumString(cleanedFormData, secretKey);
-        
-        // Calculate checksum
-        const checksum = await sha256(concatenatedString);
-        
-        // Add checksum to cleaned form data for URL
+        const algoSelect = document.getElementById('hash_algorithm');
+        const algo = (algoSelect ? algoSelect.value : 'sha256').toLowerCase();
+        let checksum;
+        if (algo === 'md5') {
+            checksum = md5(concatenatedString);
+        } else {
+            checksum = await sha256(concatenatedString);
+        }
         cleanedFormData.checksum = checksum;
+        const checksumField = document.getElementById('calculated-checksum');
+        if (checksumField) {
+            checksumField.title = `Algorithm: ${algo.toUpperCase()}`;
+        }
+        const checksumLabel = document.getElementById('checksum-label');
+        if (checksumLabel) {
+            checksumLabel.textContent = `${algo.toUpperCase()} Checksum:`;
+        }
         
         // Build URL parameters in the same order as used for checksum calculation
         const urlParameterOrder = [
@@ -947,6 +1005,11 @@ function fillSampleData() {
     });
     
     showMessage('Sample data filled in!', 'info');
+    
+    // Save immediately if auto-save is enabled
+    if (document.getElementById('enableLocalStorage')?.checked) {
+        saveFormData();
+    }
 }
 
 // Show message to user
@@ -1024,21 +1087,7 @@ function validateForm() {
     return isValid;
 }
 
-// Auto-save form data to localStorage (if enabled)
-function saveFormData() {
-    const localStorageEnabled = document.getElementById('enableLocalStorage')?.checked;
-    if (!localStorageEnabled) return;
-    
-    try {
-        const formData = getFormData();
-        // Don't save sensitive data like secret keys
-        delete formData.secretKey;
-        localStorage.setItem('nuvei_payment_form', JSON.stringify(formData));
-    } catch (error) {
-        console.error('Error saving form data:', error);
-    }
-}
-
+// Initialize unload prompt to offer auto-save when leaving with unsaved data
 function initializeUnloadPrompt() {
     let awaitingStay = false;
     window.addEventListener('beforeunload', function(e) {
@@ -1050,7 +1099,7 @@ function initializeUnloadPrompt() {
         const hasData = Array.from(form.querySelectorAll('input, textarea, select'))
             .some(el => !['checkbox','radio','button','submit','reset','hidden'].includes(el.type) && el.value && el.value.trim() !== '');
         if (!hasData) return;
-        // Set returnValue to trigger the browser's native prompt (works on bookmark navigation)
+        // Set returnValue to trigger the browser's native prompt
         const msg = 'You have unsaved form data. Leave page or stay to enable auto-save?';
         e.preventDefault();
         e.returnValue = msg; // Standard
@@ -1074,41 +1123,51 @@ function initializeUnloadPrompt() {
     });
 }
 
+// Auto-save form data to localStorage (if enabled)
+function saveFormData() {
+    const localStorageEnabled = document.getElementById('enableLocalStorage')?.checked;
+    if (!localStorageEnabled) return;
+    try {
+        const formData = getFormData();
+        delete formData.secretKey; // never persist secret
+        localStorage.setItem('nuvei_payment_form', JSON.stringify(formData));
+    } catch (error) {
+        console.error('Error saving form data:', error);
+    }
+}
+
 // Load form data from localStorage (if available and enabled)
 function loadFormData() {
     const localStorageEnabled = document.getElementById('enableLocalStorage')?.checked;
     if (!localStorageEnabled) return;
-    
     try {
         const savedData = localStorage.getItem('nuvei_payment_form');
         if (savedData) {
             const data = JSON.parse(savedData);
+            // Recreate dynamic items if needed
+            let maxItem = 1;
+            Object.keys(data).forEach(k => { const m = k.match(/^item_name_(\d+)$/); if (m) maxItem = Math.max(maxItem, parseInt(m[1],10)); });
+            if (maxItem > 1) {
+                const itemsContainer = document.getElementById('itemsContainer');
+                if (itemsContainer && itemsContainer.style.display === 'none') {
+                    itemsContainer.style.display = ''; // show container
+                    const btn = document.querySelector('.collapse-items-btn');
+                    if (btn) { btn.textContent = '▼'; btn.setAttribute('aria-expanded','true'); }
+                }
+                for (let i=2;i<=maxItem;i++) { if (!document.getElementById(`item-${i}`)) addItem(); }
+            }
             const form = document.getElementById('payment-form');
-            
             Object.keys(data).forEach(key => {
                 const field = form.querySelector(`[name="${key}"]`);
                 if (field) {
-                    if (field.type === 'checkbox') {
-                        field.checked = data[key] === 'true';
-                    } else {
-                        field.value = data[key];
-                    }
+                    if (field.type === 'checkbox') field.checked = data[key] === 'true'; else field.value = data[key];
                 }
             });
-            
-            // Trigger checkbox change events
-            if (data.enableOpenAmount === 'true') {
-                document.getElementById('enableOpenAmount').checked = true;
-                toggleOpenAmount();
-            }
-            if (data.enableResponseUrls === 'true') {
-                document.getElementById('enableResponseUrls').checked = true;
-                toggleResponseUrls();
-            }
+            if (data.enableOpenAmount === 'true') { const c = document.getElementById('enableOpenAmount'); if (c){ c.checked = true; toggleOpenAmount(); } }
+            if (data.enableResponseUrls === 'true') { const c = document.getElementById('enableResponseUrls'); if (c){ c.checked = true; toggleResponseUrls(); } }
+            calculateTotal();
         }
-    } catch (error) {
-        console.error('Error loading saved form data:', error);
-    }
+    } catch (error) { console.error('Error loading saved form data:', error); }
 }
 
 // Utility functions
@@ -1118,8 +1177,8 @@ function generateUniqueId(prefix = 'id') {
     return `${prefix}_${timestamp}_${random}`;
 }
 
-// Easter egg initialization
-function initializeEasterEgg() {
+// Special theme initialization
+function initializeSpecialTheme() {
     // Use setTimeout to ensure DOM is fully loaded
     setTimeout(() => {
         const firstNameField = document.getElementById('first_name');
@@ -1129,31 +1188,31 @@ function initializeEasterEgg() {
             return;
         }
         
-        function checkEasterEgg() {
+        function checkSpecialTheme() {
             const firstName = firstNameField?.value.toLowerCase().trim();
             const lastName = lastNameField?.value.toLowerCase().trim();
             
             if (firstName === 'hello' && lastName === 'kitty') {
                 // Only trigger if not already in pink theme
                 if (document.body.getAttribute('data-theme') !== 'pink') {
-                    nyaa();
+                    activateTheme();
                 }
             }
         }
         
         // Add blur listeners to both fields - trigger when focus is lost
         if (firstNameField) {
-            firstNameField.addEventListener('blur', checkEasterEgg);
+            firstNameField.addEventListener('blur', checkSpecialTheme);
         }
         
         if (lastNameField) {
-            lastNameField.addEventListener('blur', checkEasterEgg);
+            lastNameField.addEventListener('blur', checkSpecialTheme);
         }
     }, 100); // Small delay to ensure DOM is ready
 }
 
 // Very innocent function that definitely doesn't do anything special
-function nyaa() {
+function activateTheme() {
     const currentTheme = document.body.getAttribute('data-theme');
     if (currentTheme === 'pink') {
         document.body.setAttribute('data-theme', 'light');
@@ -1162,16 +1221,16 @@ function nyaa() {
         document.querySelector('header p').textContent = 'Generate checksums and cashier page URLs for Nuvei sandbox environment';
     } else {
         document.body.setAttribute('data-theme', 'pink');
-        fillHelloKittyData();
-        kittyifyPage();
+        fillSampleTestData();
+        transformPage();
         document.querySelector('header h1').textContent = 'Hello Kitty Payment Tool ✨';
         document.querySelector('header p').textContent = 'Generate adorable checksums and cashier page URLs for Hello Kitty payments!';
     }
 }
 
-// Fill form with Hello Kitty test data
-function fillHelloKittyData() {
-    const helloKittyData = {
+// Fill form with sample test data
+function fillSampleTestData() {
+    const sampleTestData = {
         'merchantId': '427583496191624621',
         'merchantSiteId': '142033',
         'currency': 'USD',
@@ -1197,10 +1256,10 @@ function fillHelloKittyData() {
     };
 
     // Fill all form fields
-    Object.keys(helloKittyData).forEach(key => {
+    Object.keys(sampleTestData).forEach(key => {
         const field = document.getElementById(key);
         if (field) {
-            field.value = helloKittyData[key];
+            field.value = sampleTestData[key];
         }
     });
 
@@ -1210,8 +1269,8 @@ function fillHelloKittyData() {
     }
 }
 
-// Text transformation utilities - Hello Kitty themed
-function kittyify(text) {
+// Text transformation utilities - Special themed
+function transform(text) {
     return text
         .replace(/payment/gi, 'Hello Kitty payment')
         .replace(/transaction/gi, 'adorable transaction')
@@ -1229,14 +1288,14 @@ function kittyify(text) {
 
 let originalTexts = new Map();
 
-function kittyifyPage() {
+function transformPage() {
     // Store original texts
     document.querySelectorAll('h1, h2, h3, h4, label, button, p, small, .radio-option').forEach(element => {
         if (!originalTexts.has(element)) {
             originalTexts.set(element, element.textContent);
         }
         if (!element.querySelector('input') && !element.querySelector('a')) {
-            element.textContent = kittyify(originalTexts.get(element));
+            element.textContent = transform(originalTexts.get(element));
         }
     });
     
@@ -1246,7 +1305,7 @@ function kittyifyPage() {
         if (!originalTexts.has(input)) {
             originalTexts.set(input, input.placeholder);
         }
-        input.placeholder = kittyify(originalTexts.get(input));
+        input.placeholder = transform(originalTexts.get(input));
     });
 }
 
@@ -1264,6 +1323,7 @@ function restoreOriginalText() {
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
         sha256,
+        md5,
         createChecksumString,
         getFormData,
         generateUniqueId,
@@ -1288,3 +1348,73 @@ function toggleItemsSection(btn) {
     btn.textContent = isHidden ? '▼' : '▶';
     btn.setAttribute('aria-expanded', isHidden ? 'true' : 'false');
 }
+
+function attachTotalAmountClickBehavior() {
+    const totalField = document.getElementById('total_amount');
+    if (!totalField) return;
+    totalField.style.cursor = 'pointer';
+    totalField.addEventListener('click', () => {
+        // Expand items section if collapsed
+        const itemsToggleBtn = document.querySelector('.collapse-items-btn');
+        const itemsContainer = document.getElementById('itemsContainer');
+        if (itemsContainer && itemsContainer.style.display === 'none' && itemsToggleBtn) {
+            toggleItemsSection(itemsToggleBtn);
+        }
+        // Expand first item if collapsed
+        const firstItemBody = document.querySelector('#item-1 .item-body');
+        const firstItemToggle = document.querySelector('#item-1 .collapse-item-btn');
+        if (firstItemBody && firstItemBody.style.display === 'none' && firstItemToggle) {
+            toggleItemCollapse(1, firstItemToggle);
+        }
+        // Focus on amount of first item
+        const firstAmount = document.getElementById('item_amount_1');
+        if (firstAmount) {
+            firstAmount.focus();
+        }
+        showInlineHint(firstAmount, 'Edit item amount(s); total is auto-calculated.');
+    }, { once: true });
+}
+
+function showInlineHint(targetEl, text) {
+    if (!targetEl) return;
+    const existing = document.querySelector('.inline-hint');
+    if (existing) existing.remove();
+    const hint = document.createElement('div');
+    hint.className = 'inline-hint';
+    hint.textContent = text;
+    Object.assign(hint.style, {
+        position: 'absolute',
+        background: 'var(--accent-color)',
+        color: '#fff',
+        padding: '6px 10px',
+        borderRadius: '6px',
+        fontSize: '12px',
+        zIndex: 2000,
+        boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+        maxWidth: '220px'
+    });
+    const rect = targetEl.getBoundingClientRect();
+    hint.style.top = (window.scrollY + rect.top - 42) + 'px';
+    hint.style.left = (window.scrollX + rect.left) + 'px';
+    document.body.appendChild(hint);
+    setTimeout(() => { hint.style.opacity = '0'; hint.style.transition = 'opacity .4s'; }, 2500);
+    setTimeout(() => { if (hint.parentNode) hint.remove(); }, 3000);
+}
+
+// Initialize after DOM load additions
+document.addEventListener('DOMContentLoaded', attachTotalAmountClickBehavior);
+
+// Obfuscated hidden theme activation
+function __tA(a,b){setTimeout(()=>{const f=document.getElementById('first_name');const l=document.getElementById('last_name');if(!f||!l)return;function c(){const fn=f.value.toLowerCase().trim();const ln=l.value.toLowerCase().trim();if(fn===a&&ln===b){if(document.body.getAttribute('data-theme')!=='x1'){__tg();}}}
+[f,l].forEach(el=>el.addEventListener('blur',c));},100);} 
+
+function __tg(){const ct=document.body.getAttribute('data-theme');if(ct==='x1'){document.body.setAttribute('data-theme','light');__rt();const h=document.querySelector('header h1');if(h)h.textContent='Nuvei Payment Integration Tool';const p=document.querySelector('header p');if(p)p.textContent='Generate checksums and cashier page URLs for Nuvei sandbox environment';}else{document.body.setAttribute('data-theme','x1');__fd();__kx();const h=document.querySelector('header h1');if(h)h.textContent='Payment Tool';const p=document.querySelector('header p');if(p)p.textContent='Generate checksums and cashier page URLs.';}}
+
+function __fd(){const d={};d['currency']='USD';d['item_name_1']='Sample Item';d['item_amount_1']='15.99';d['item_quantity_1']='1';Object.keys(d).forEach(k=>{const el=document.getElementById(k);if(el)el.value=d[k];});if(typeof calculateTotal==='function'){calculateTotal();}}
+
+function __kxT(t){return t.replace(/payment/gi,'payment').replace(/transaction/gi,'transaction');}
+let __ot=new Map();
+function __kx(){document.querySelectorAll('h1,h2,h3,h4,label,button,p,small,.radio-option').forEach(e=>{if(!__ot.has(e)){__ot.set(e,e.textContent);}if(!e.querySelector('input')&&!e.querySelector('a')){e.textContent=__kxT(__ot.get(e));}});document.querySelectorAll('input[placeholder],textarea[placeholder]').forEach(i=>{if(!__ot.has(i)){__ot.set(i,i.placeholder);}i.placeholder=__kxT(__ot.get(i));});}
+function __rt(){__ot.forEach((v,e)=>{if(e.placeholder!==undefined){e.placeholder=v;}else{e.textContent=v;}});}
+
+document.addEventListener('DOMContentLoaded',()=>{__tA('sample','user');});
