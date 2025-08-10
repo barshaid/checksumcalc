@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeTheme();
     initializeCompactMode();
     loadFormData();
+    initializeErrorHandling();
 });
 
 // Dark mode functionality
@@ -527,6 +528,103 @@ function createChecksumString(data, secretKey) {
     return concatenatedString;
 }
 
+// Enhanced validation error handling with scrolling and highlighting
+function showValidationError(missingFields, requiredFieldIds) {
+    // Clear any existing error states
+    clearFieldErrors();
+    
+    // Show alert with missing fields
+    alert(`Please fill in the following required fields:\n• ${missingFields.join('\n• ')}`);
+    
+    // Highlight ALL missing fields
+    const missingFieldIds = requiredFieldIds.filter(fieldId => {
+        const element = document.getElementById(fieldId);
+        return !element || !element.value.trim();
+    });
+    
+    // Apply error styling to all missing fields
+    missingFieldIds.forEach(fieldId => {
+        highlightField(fieldId);
+    });
+    
+    // Scroll to the first missing field
+    if (missingFieldIds.length > 0) {
+        scrollToField(missingFieldIds[0]);
+    }
+}
+
+function highlightField(fieldId) {
+    const field = document.getElementById(fieldId);
+    if (!field) return;
+    
+    // Add error styling to the field
+    const formGroup = field.closest('.form-group');
+    if (formGroup) {
+        formGroup.classList.add('error');
+    }
+}
+
+function scrollToField(fieldId) {
+    const field = document.getElementById(fieldId);
+    if (!field) return;
+    
+    // Find the section containing this field
+    const section = field.closest('.section');
+    if (section) {
+        // Scroll to the section with some offset for better visibility
+        const headerOffset = 100; // Account for header and some padding
+        const sectionTop = section.getBoundingClientRect().top + window.pageYOffset - headerOffset;
+        
+        window.scrollTo({
+            top: sectionTop,
+            behavior: 'smooth'
+        });
+        
+        // Focus the field after a brief delay to ensure scrolling completes
+        setTimeout(() => {
+            field.focus();
+        }, 500);
+    }
+}
+
+function highlightAndScrollToField(fieldId) {
+    highlightField(fieldId);
+    scrollToField(fieldId);
+}
+
+function clearFieldErrors() {
+    // Remove error class from all form groups
+    const errorGroups = document.querySelectorAll('.form-group.error');
+    errorGroups.forEach(group => {
+        group.classList.remove('error');
+    });
+}
+
+// Initialize error handling - clear errors when user starts typing
+function initializeErrorHandling() {
+    // Add event listeners to all form inputs to clear errors on input
+    const inputs = document.querySelectorAll('input, select, textarea');
+    inputs.forEach(input => {
+        input.addEventListener('input', function() {
+            clearFieldError(this);
+        });
+        
+        input.addEventListener('focus', function() {
+            clearFieldError(this);
+        });
+    });
+}
+
+function clearFieldError(field) {
+    const formGroup = field.closest('.form-group');
+    if (formGroup && formGroup.classList.contains('error')) {
+        // Only clear the error if the field now has a value
+        if (field.value.trim()) {
+            formGroup.classList.remove('error');
+        }
+    }
+}
+
 // Generate cashier URL and calculate checksum
 async function generateCashierUrl() {
     try {
@@ -554,7 +652,7 @@ async function generateCashierUrl() {
         }
         
         if (missingFields.length > 0) {
-            alert(`Please fill in the following required fields:\n• ${missingFields.join('\n• ')}`);
+            showValidationError(missingFields, requiredFields);
             return;
         }
         

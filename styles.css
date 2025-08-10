@@ -169,6 +169,66 @@ header p {
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
+.action-btn.success {
+    background-color: var(--success-color);
+    color: white;
+    border: 1px solid var(--success-color);
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.action-btn.success:hover {
+    background-color: #38a169;
+    color: white;
+    border-color: #38a169;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(72, 187, 120, 0.4), 0 2px 4px -1px rgba(72, 187, 120, 0.2);
+}
+
+.action-btn.danger {
+    background-color: var(--error-color);
+    color: white;
+    border: 1px solid var(--error-color);
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.action-btn.danger:hover {
+    background-color: #e53e3e;
+    color: white;
+    border-color: #e53e3e;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(245, 101, 101, 0.4), 0 2px 4px -1px rgba(245, 101, 101, 0.2);
+}
+
+/* Auto-save toggle styling */
+.auto-save-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background-color: var(--bg-section);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.auto-save-toggle:hover {
+    background-color: var(--accent-color);
+    color: white;
+    border-color: var(--accent-color);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.auto-save-toggle input[type="checkbox"] {
+    margin: 0;
+    transform: scale(1.2);
+}
+
 /* Sections */
 .section {
     margin-bottom: 1.5rem;
@@ -899,8 +959,25 @@ footer {
 .form-group.error input,
 .form-group.error select,
 .form-group.error textarea {
-    border-color: #dc3545;
-    box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.25);
+    border-color: #dc3545 !important;
+    border-width: 2px !important;
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.25) !important;
+    background-color: rgba(220, 53, 69, 0.05) !important;
+}
+
+.form-group.error label {
+    color: #dc3545 !important;
+    font-weight: 600 !important;
+}
+
+.form-group.error {
+    animation: errorShake 0.5s ease-in-out;
+}
+
+@keyframes errorShake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
 }
 
 .form-group.success input,

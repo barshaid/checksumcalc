@@ -21,8 +21,12 @@
 
         <!-- Quick Actions -->
         <div class="quick-actions">
-            <button type="button" class="action-btn secondary" onclick="clearForm()">Clear Form</button>
-            <button type="button" class="action-btn secondary" onclick="fillSampleData()">Fill Sample Data</button>
+            <button type="button" class="action-btn danger" onclick="clearForm()">Clear Form</button>
+            <button type="button" class="action-btn success" onclick="fillSampleData()">Fill Sample Data</button>
+            <label class="auto-save-toggle">
+                <input type="checkbox" id="enableLocalStorage" onchange="toggleLocalStorage()" checked>
+                Auto-save form data
+            </label>
         </div>
 
         <form id="payment-form">
@@ -560,10 +564,6 @@
             <!-- Form Actions -->
             <div class="form-actions">
                 <button type="button" onclick="generateCashierUrl()">Generate Cashier URL & Checksum</button>
-                <label style="margin-left: 20px;">
-                    <input type="checkbox" id="enableLocalStorage" onchange="toggleLocalStorage()" checked>
-                    Auto-save form data
-                </label>
             </div>
         </form>
 
