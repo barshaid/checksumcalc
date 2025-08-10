@@ -20,7 +20,7 @@ A client‑side sandbox helper for building and testing Nuvei (SafeCharge) hoste
 ### 3. Collapsible UI & Layout Modes
 - Collapsible "Items" section and each item row (arrow buttons ▶ / ▼ with consistent styling & borders).
 - Compact mode toggle for denser layout.
-- Light/Dark theme toggle + hidden Pink (Hello Kitty) easter egg theme.
+- Light/Dark theme toggle.
 
 ### 4. Optional Sections & Toggles
 - Response URLs (success / error / pending / notify) block enabled only when requested.
@@ -50,9 +50,8 @@ A client‑side sandbox helper for building and testing Nuvei (SafeCharge) hoste
 - Inline error clearing on input/focus.
 - Toast style transient messages for success / info / warnings.
 
-### 9. Theming & Easter Egg
+### 9. Theming
 - Light / Dark mode toggle persists via LocalStorage.
-- Hidden Hello Kitty theme activated by entering first name "Hello" & last name "Kitty" (on blur), applying playful text transformations.
 
 ## Security Considerations
 - Development / sandbox use only. DO NOT use production secret keys here.
@@ -132,7 +131,7 @@ README.md
 - Introduced optional payment method preselect / filter modes.
 - Implemented space removal in parameter values before checksum & URL.
 - Added beforeunload native prompt + post‑stay auto‑save enable flow (auto‑save default OFF).
-- Added dark theme toggle & Hello Kitty easter egg theme.
+- Added dark theme toggle.
 - Improved validation with scroll & highlighting.
 - Ensured secret key exclusion from persistence.
 - Unified arrow button styling with borders.
