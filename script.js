@@ -662,19 +662,28 @@ async function generateCashierUrl() {
         // Remove secret key from form data for checksum calculation
         delete formData.secretKey;
         
-        // Create concatenated string for checksum
-        const concatenatedString = createChecksumString(formData, secretKey);
+        // IMPORTANT: Remove spaces from all parameter values for both checksum and URL
+        // According to Nuvei docs, spaces should be removed from values
+        const cleanedFormData = {};
+        Object.keys(formData).forEach(key => {
+            if (formData[key] && formData[key] !== '') {
+                cleanedFormData[key] = formData[key].toString().replace(/\s/g, '');
+            }
+        });
+        
+        // Create concatenated string for checksum using cleaned data
+        const concatenatedString = createChecksumString(cleanedFormData, secretKey);
         
         // Debug: log the form data and concatenated string
-        console.log('Form data for checksum:', formData);
+        console.log('Original form data:', formData);
+        console.log('Cleaned form data for checksum:', cleanedFormData);
         console.log('Checksum calculation string:', concatenatedString);
-        console.log('URL parameter order used for checksum:', Object.keys(formData).filter(key => formData[key] && formData[key] !== '').map(key => `${key}: ${formData[key]}`));
         
         // Calculate checksum
         const checksum = await sha256(concatenatedString);
         
-        // Add checksum to form data
-        formData.checksum = checksum;
+        // Add checksum to cleaned form data for URL
+        cleanedFormData.checksum = checksum;
         
         // Build URL parameters in the same order as used for checksum calculation
         const urlParameterOrder = [
@@ -688,7 +697,7 @@ async function generateCashierUrl() {
         // Add item fields in order
         const itemFields = [];
         for (let i = 1; i <= 50; i++) { // Support up to 50 items
-            if (formData[`item_name_${i}`] || formData[`item_amount_${i}`] || formData[`item_quantity_${i}`]) {
+            if (cleanedFormData[`item_name_${i}`] || cleanedFormData[`item_amount_${i}`] || cleanedFormData[`item_quantity_${i}`]) {
                 itemFields.push(`item_name_${i}`, `item_amount_${i}`, `item_quantity_${i}`);
             }
         }
@@ -705,26 +714,26 @@ async function generateCashierUrl() {
         ];
         
         // Add custom fields to the order
-        const customFieldKeys = Object.keys(formData).filter(key => key.startsWith('customField')).sort();
+        const customFieldKeys = Object.keys(cleanedFormData).filter(key => key.startsWith('customField')).sort();
         const fullParameterOrder = [...parameterOrderWithItems, ...customFieldKeys, 'checksum'];
         
         const urlParams = new URLSearchParams();
         
-        // Add parameters in the specified order
+        // Add parameters in the specified order using cleaned data
         for (const key of fullParameterOrder) {
-            if (formData[key] && formData[key] !== '') {
-                urlParams.append(key, formData[key]);
+            if (cleanedFormData[key] && cleanedFormData[key] !== '') {
+                urlParams.append(key, cleanedFormData[key]);
             }
         }
         
         // Add any remaining parameters not in the core list
-        const remainingKeys = Object.keys(formData)
+        const remainingKeys = Object.keys(cleanedFormData)
             .filter(key => !fullParameterOrder.includes(key))
             .sort();
         
         for (const key of remainingKeys) {
-            if (formData[key] && formData[key] !== '') {
-                urlParams.append(key, formData[key]);
+            if (cleanedFormData[key] && cleanedFormData[key] !== '') {
+                urlParams.append(key, cleanedFormData[key]);
             }
         }
         
@@ -1061,6 +1070,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize total calculation
     calculateTotal();
     
+    // Add easter egg listeners
+    initializeEasterEgg();
+    
     // Keyboard shortcuts
     document.addEventListener('keydown', function(e) {
         // Ctrl+Alt+S to fill sample data
@@ -1076,6 +1088,141 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+// Easter egg initialization
+function initializeEasterEgg() {
+    const firstNameField = document.getElementById('first_name');
+    const lastNameField = document.getElementById('last_name');
+    
+    function checkEasterEgg() {
+        const firstName = firstNameField?.value.toLowerCase().trim();
+        const lastName = lastNameField?.value.toLowerCase().trim();
+        
+        if (firstName === 'hello' && lastName === 'kitty') {
+            // Only trigger if not already in pink theme
+            if (document.body.getAttribute('data-theme') !== 'pink') {
+                nyaa();
+            }
+        }
+    }
+    
+    // Add blur listeners to both fields - trigger when focus is lost
+    if (firstNameField) {
+        firstNameField.addEventListener('blur', checkEasterEgg);
+    }
+    
+    if (lastNameField) {
+        lastNameField.addEventListener('blur', checkEasterEgg);
+    }
+}
+
+// Very innocent function that definitely doesn't do anything special
+function nyaa() {
+    const currentTheme = document.body.getAttribute('data-theme');
+    if (currentTheme === 'pink') {
+        document.body.setAttribute('data-theme', 'light');
+        restoreOriginalText();
+        document.querySelector('header h1').textContent = 'Nuvei Payment Integration Tool';
+        document.querySelector('header p').textContent = 'Generate checksums and cashier page URLs for Nuvei sandbox environment';
+    } else {
+        document.body.setAttribute('data-theme', 'pink');
+        fillHelloKittyData();
+        kittyifyPage();
+        document.querySelector('header h1').textContent = 'Hello Kitty Payment Tool ✨';
+        document.querySelector('header p').textContent = 'Generate adorable checksums and cashier page URLs for Hello Kitty payments!';
+    }
+}
+
+// Fill form with Hello Kitty test data
+function fillHelloKittyData() {
+    const helloKittyData = {
+        'merchantId': '427583496191624621',
+        'merchantSiteId': '142033',
+        'currency': 'USD',
+        'amount': '25.99',
+        'first_name': 'Hello',
+        'last_name': 'Kitty',
+        'address': '1-16-14 Higashi-gotanda',
+        'city': 'Shinagawa',
+        'state': 'Tokyo',
+        'zip': '141-8560',
+        'country': 'JP',
+        'phone': '+81-3-5434-1111',
+        'email': 'hello@sanrio.com',
+        'merchantSecretKey': 'your-secret-key-here',
+        'checksum': '',
+        'timeStamp': generateTimestamp(),
+        'item_name_1': 'Hello Kitty Plushie',
+        'item_amount_1': '15.99',
+        'item_quantity_1': '1',
+        'item_name_2': 'Bow Hair Clip',
+        'item_amount_2': '9.99',
+        'item_quantity_2': '1'
+    };
+
+    // Fill all form fields
+    Object.keys(helloKittyData).forEach(key => {
+        const field = document.getElementById(key);
+        if (field) {
+            field.value = helloKittyData[key];
+        }
+    });
+
+    // Trigger amount calculation
+    if (typeof calculateTotal === 'function') {
+        calculateTotal();
+    }
+}
+
+// Text transformation utilities - Hello Kitty themed
+function kittyify(text) {
+    return text
+        .replace(/payment/gi, 'Hello Kitty payment')
+        .replace(/transaction/gi, 'adorable transaction')
+        .replace(/generate/gi, 'create cute')
+        .replace(/checksum/gi, 'magical checksum')
+        .replace(/url/gi, 'kawaii URL')
+        .replace(/amount/gi, 'cuteness amount')
+        .replace(/total/gi, 'super cute total')
+        .replace(/error/gi, 'oopsie')
+        .replace(/success/gi, 'purr-fect')
+        .replace(/validate/gi, 'check cuteness')
+        .replace(/processing/gi, 'sprinkling magic')
+        + (Math.random() > 0.8 ? ' ✨' : Math.random() > 0.6 ? ' 🎀' : '');
+}
+
+let originalTexts = new Map();
+
+function kittyifyPage() {
+    // Store original texts
+    document.querySelectorAll('h1, h2, h3, h4, label, button, p, small, .radio-option').forEach(element => {
+        if (!originalTexts.has(element)) {
+            originalTexts.set(element, element.textContent);
+        }
+        if (!element.querySelector('input') && !element.querySelector('a')) {
+            element.textContent = kittyify(originalTexts.get(element));
+        }
+    });
+    
+    // Special transformations for placeholders
+    const placeholders = document.querySelectorAll('input[placeholder], textarea[placeholder]');
+    placeholders.forEach(input => {
+        if (!originalTexts.has(input)) {
+            originalTexts.set(input, input.placeholder);
+        }
+        input.placeholder = kittyify(originalTexts.get(input));
+    });
+}
+
+function restoreOriginalText() {
+    originalTexts.forEach((originalText, element) => {
+        if (element.placeholder !== undefined) {
+            element.placeholder = originalText;
+        } else {
+            element.textContent = originalText;
+        }
+    });
+}
 
 // Export functions for testing
 if (typeof module !== 'undefined' && module.exports) {

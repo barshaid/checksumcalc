@@ -311,23 +311,77 @@ header p {
     grid-column: auto;
 }
 
-/* Right column - Form actions and results */
-.compact-mode .form-actions {
+/* Right column container - holds actions and results */
+.compact-mode .right-column-container {
     grid-column: 2;
     grid-row: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    align-self: start;
+}
+
+/* Right column - Form actions */
+.compact-mode .form-actions {
     margin-top: 0;
-    position: sticky;
-    top: 20px;
-    z-index: 10;
+    position: static;
+    margin-bottom: 0;
+    padding-top: 15px;
+    border-top: 2px solid var(--border-section);
+    display: flex;
+    justify-content: center;
 }
 
 .compact-mode .result-section {
-    grid-column: 2;
-    grid-row: 2;
-    margin-top: 20px;
-    position: sticky;
-    top: 120px;
-    z-index: 9;
+    margin-top: 10px;
+    position: static;
+    padding: 15px;
+    font-size: 0.875rem;
+    margin-bottom: 0;
+    align-self: start;
+    width: 100%;
+}
+
+.compact-mode .result-section h3 {
+    font-size: 1.1em;
+    margin-bottom: 12px;
+}
+
+.compact-mode .result-section h3:before {
+    width: 1.25rem;
+    height: 1.25rem;
+    line-height: 1.25rem;
+    font-size: 0.75rem;
+    margin-right: 0.75rem;
+}
+
+.compact-mode .result-group {
+    margin-bottom: 12px;
+}
+
+.compact-mode .result-group label {
+    font-size: 13px;
+    margin-bottom: 5px;
+}
+
+.compact-mode .result-group input,
+.compact-mode .result-group textarea {
+    padding: 8px 10px;
+    font-size: 13px;
+    line-height: 1.4;
+    border-width: 1.5px;
+}
+
+.compact-mode .result-group textarea {
+    min-height: 80px;
+}
+
+.compact-mode .result-group button {
+    padding: 0.5rem 1rem;
+    font-size: 0.75rem;
+    min-height: 2rem;
+    margin-top: 0.5rem;
+    margin-right: 0.5rem;
 }
 
 /* Items section should be in left column */
@@ -1043,6 +1097,55 @@ footer p:last-child {
 #aftFields,
 #openAmountSection {
     transition: all 0.3s ease;
+}
+
+/* Special theme that shall remain unnamed */
+[data-theme="pink"] {
+    --bg-primary: #ffc0cb;
+    --bg-secondary: #ffb6c1;
+    --bg-section: #ffe4e1;
+    --text-primary: #ff1493;
+    --text-secondary: #ff69b4;
+    --text-heading: #c71585;
+    --border-color: #ffb6c1;
+    --border-section: #ff69b4;
+    --accent-color: #ff1493;
+    --accent-hover: #c71585;
+    --accent-secondary: #ffc0cb;
+    --shadow: rgba(255, 20, 147, 0.2);
+    --result-bg: #fff0f5;
+    --success-color: #ff69b4;
+    --warning-color: #ffa500;
+    --error-color: #ff1493;
+}
+
+[data-theme="pink"] .section h3:before {
+    background: linear-gradient(45deg, #ff1493, #ff69b4, #ffc0cb);
+    content: '🎀';
+    color: white;
+    text-align: center;
+    line-height: 1.25rem;
+    font-size: 0.8rem;
+}
+
+[data-theme="pink"] .result-section h3:before {
+    content: '✨';
+    background: linear-gradient(45deg, #ff69b4, #ff1493);
+}
+
+[data-theme="pink"] header {
+    background: linear-gradient(135deg, #ff69b4, #ff1493, #c71585);
+    position: relative;
+}
+
+[data-theme="pink"] header::after {
+    content: '🌸 ✨ 🎀 ✨ 🌸';
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.9rem;
+    opacity: 0.8;
 }
 
 /* Responsive design */

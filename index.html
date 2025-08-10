@@ -613,31 +613,34 @@
             </div>
             </div>
 
-            <!-- Form Actions -->
-            <div class="form-actions">
-                <button type="button" onclick="generateCashierUrl()">Generate Cashier URL & Checksum</button>
+            <!-- Form Actions and Results Container -->
+            <div class="right-column-container">
+                <!-- Form Actions -->
+                <div class="form-actions">
+                    <button type="button" onclick="generateCashierUrl()">Generate Cashier URL & Checksum</button>
+                </div>
+
+                <!-- Results Section -->
+                <div id="results" class="result-section" style="display: none;">
+                    <h3>Generated Results</h3>
+                    <div class="result-group">
+                        <label>Checksum String (concatenated parameters):</label>
+                        <textarea id="concatenated-string" readonly></textarea>
+                    </div>
+                    <div class="result-group">
+                        <label>SHA-256 Checksum:</label>
+                        <input type="text" id="calculated-checksum" readonly>
+                        <button type="button" onclick="copyToClipboard('calculated-checksum')">Copy</button>
+                    </div>
+                    <div class="result-group">
+                        <label>Complete Cashier URL:</label>
+                        <textarea id="cashier-url" readonly></textarea>
+                        <button type="button" onclick="copyToClipboard('cashier-url')">Copy URL</button>
+                        <button type="button" onclick="openCashierPage()">Open in New Tab</button>
+                    </div>
+                </div>
             </div>
         </form>
-
-        <!-- Results Section -->
-        <div id="results" class="result-section" style="display: none;">
-            <h3>Generated Results</h3>
-            <div class="result-group">
-                <label>Checksum String (concatenated parameters):</label>
-                <textarea id="concatenated-string" readonly></textarea>
-            </div>
-            <div class="result-group">
-                <label>SHA-256 Checksum:</label>
-                <input type="text" id="calculated-checksum" readonly>
-                <button type="button" onclick="copyToClipboard('calculated-checksum')">Copy</button>
-            </div>
-            <div class="result-group">
-                <label>Complete Cashier URL:</label>
-                <textarea id="cashier-url" readonly></textarea>
-                <button type="button" onclick="copyToClipboard('cashier-url')">Copy URL</button>
-                <button type="button" onclick="openCashierPage()">Open in New Tab</button>
-            </div>
-        </div>
     </div>
 
     <footer>
