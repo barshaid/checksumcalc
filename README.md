@@ -91,20 +91,6 @@ A client‑side sandbox helper for building and testing Nuvei (SafeCharge) hoste
 
 Spaces inside values are removed prior to both concatenation and URL creation (per internal guidance used here).
 
-## Project Structure (Current)
-```
-index.html
-script.js
-css/
-  styles.css
-assets/
-  logos/ (Nuvei logo variants)
-apple-pay.html (auxiliary / experimental page, if present)
-google-pay.html (auxiliary / experimental page, if present)
-test-theme.html (theme exploration, if present)
-README.md
-```
-
 ## Core Functions (Selected)
 - `generateCashierUrl()` – validation, data cleaning, checksum + URL assembly.
 - `createChecksumString(data, secretKey)` – ordered concatenation logic.
@@ -167,3 +153,4 @@ This tool is educational and for sandbox experimentation. Always implement secur
 
 ---
 Generated & maintained with iterative improvements reflecting actual implemented code. Feel free to adapt.
+
