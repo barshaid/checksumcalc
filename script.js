@@ -3,12 +3,56 @@
 
 const NUVEI_SANDBOX_CASHIER_URL = 'https://ppp-test.safecharge.com/ppp/purchase.do';
 
-// Initialize theme and compact mode on page load
+// Initialize the application - consolidated DOMContentLoaded listener
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOMContentLoaded event fired!');
+    
+    // Initialize theme and layout
     initializeTheme();
     initializeCompactMode();
-    loadFormData();
     initializeErrorHandling();
+    
+    // Load saved form data
+    loadFormData();
+    
+    // Auto-save form data on input
+    const form = document.getElementById('payment-form');
+    form.addEventListener('input', saveFormData);
+    form.addEventListener('change', saveFormData);
+    
+    // Add form validation on submit
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (validateForm()) {
+            generateCashierUrl();
+        }
+    });
+    
+    // Initialize with current timestamp
+    generateTimestamp();
+    
+    // Initialize total calculation
+    calculateTotal();
+    
+    // Add easter egg listeners
+    console.log('About to initialize easter egg...');
+    initializeEasterEgg();
+    console.log('Easter egg initialization complete.');
+    
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        // Ctrl+Alt+S to fill sample data
+        if (e.ctrlKey && e.altKey && e.key === 's') {
+            e.preventDefault();
+            fillSampleData();
+        }
+        
+        // Ctrl+Enter to generate URL
+        if (e.ctrlKey && e.key === 'Enter') {
+            e.preventDefault();
+            generateCashierUrl();
+        }
+    });
 });
 
 // Dark mode functionality
@@ -1046,74 +1090,54 @@ function generateUniqueId(prefix = 'id') {
     return `${prefix}_${timestamp}_${random}`;
 }
 
-// Initialize the application
-document.addEventListener('DOMContentLoaded', function() {
-    // Load saved form data
-    loadFormData();
-    
-    // Auto-save form data on input
-    const form = document.getElementById('payment-form');
-    form.addEventListener('input', saveFormData);
-    form.addEventListener('change', saveFormData);
-    
-    // Add form validation on submit
-    form.addEventListener('submit', (e) => {
-        e.preventDefault();
-        if (validateForm()) {
-            generateCashierUrl();
-        }
-    });
-    
-    // Initialize with current timestamp
-    generateTimestamp();
-    
-    // Initialize total calculation
-    calculateTotal();
-    
-    // Add easter egg listeners
-    initializeEasterEgg();
-    
-    // Keyboard shortcuts
-    document.addEventListener('keydown', function(e) {
-        // Ctrl+Alt+S to fill sample data
-        if (e.ctrlKey && e.altKey && e.key === 's') {
-            e.preventDefault();
-            fillSampleData();
-        }
-        
-        // Ctrl+Enter to generate URL
-        if (e.ctrlKey && e.key === 'Enter') {
-            e.preventDefault();
-            generateCashierUrl();
-        }
-    });
-});
-
 // Easter egg initialization
 function initializeEasterEgg() {
-    const firstNameField = document.getElementById('first_name');
-    const lastNameField = document.getElementById('last_name');
+    console.log('Initializing Easter egg...');
     
-    function checkEasterEgg() {
-        const firstName = firstNameField?.value.toLowerCase().trim();
-        const lastName = lastNameField?.value.toLowerCase().trim();
+    // Use setTimeout to ensure DOM is fully loaded
+    setTimeout(() => {
+        const firstNameField = document.getElementById('first_name');
+        const lastNameField = document.getElementById('last_name');
         
-        if (firstName === 'hello' && lastName === 'kitty') {
-            // Only trigger if not already in pink theme
-            if (document.body.getAttribute('data-theme') !== 'pink') {
-                nyaa();
+        console.log('firstName field found:', !!firstNameField);
+        console.log('lastName field found:', !!lastNameField);
+        
+        if (!firstNameField || !lastNameField) {
+            console.warn('Easter egg fields not found, retrying...');
+            // Try alternative selectors
+            const firstNameAlt = document.querySelector('input[name="first_name"]');
+            const lastNameAlt = document.querySelector('input[name="last_name"]');
+            console.log('Alternative firstName found:', !!firstNameAlt);
+            console.log('Alternative lastName found:', !!lastNameAlt);
+            return;
+        }
+        
+        function checkEasterEgg() {
+            const firstName = firstNameField?.value.toLowerCase().trim();
+            const lastName = lastNameField?.value.toLowerCase().trim();
+            
+            console.log('Checking easter egg:', firstName, lastName);
+            
+            if (firstName === 'hello' && lastName === 'kitty') {
+                console.log('Easter egg triggered!');
+                // Only trigger if not already in pink theme
+                if (document.body.getAttribute('data-theme') !== 'pink') {
+                    nyaa();
+                }
             }
         }
-    }
-    
-    // Add blur listeners to both fields - trigger when focus is lost
-    if (firstNameField) {
-        firstNameField.addEventListener('blur', checkEasterEgg);
-    }
-    
-    if (lastNameField) {
-        lastNameField.addEventListener('blur', checkEasterEgg);
-    }
+        
+        // Add blur listeners to both fields - trigger when focus is lost
+        if (firstNameField) {
+            firstNameField.addEventListener('blur', checkEasterEgg);
+            console.log('Added blur listener to first name field');
+        }
+        
+        if (lastNameField) {
+            lastNameField.addEventListener('blur', checkEasterEgg);
+            console.log('Added blur listener to last name field');
+        }
+    }, 100); // Small delay to ensure DOM is ready
 }
 
 // Very innocent function that definitely doesn't do anything special
