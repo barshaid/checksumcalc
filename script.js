@@ -5,8 +5,6 @@ const NUVEI_SANDBOX_CASHIER_URL = 'https://ppp-test.safecharge.com/ppp/purchase.
 
 // Initialize the application - consolidated DOMContentLoaded listener
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOMContentLoaded event fired!');
-    
     // Initialize theme and layout
     initializeTheme();
     initializeCompactMode();
@@ -35,9 +33,7 @@ document.addEventListener('DOMContentLoaded', function() {
     calculateTotal();
     
     // Add easter egg listeners
-    console.log('About to initialize easter egg...');
     initializeEasterEgg();
-    console.log('Easter egg initialization complete.');
     
     // Keyboard shortcuts
     document.addEventListener('keydown', function(e) {
@@ -121,13 +117,6 @@ function generateTimestamp() {
     const timestamp = `${year}-${month}-${day}.${hours}:${minutes}:${seconds}`;
     document.getElementById('time_stamp').value = timestamp;
 }
-
-// Sync total amount with item amount for simple transactions
-function syncTotalAmount() {
-    // This function is kept for backward compatibility but now calls calculateTotal
-    calculateTotal();
-}
-
 // Items Management
 let itemCounter = 1; // Start at 1 since item_1 is mandatory
 
@@ -521,7 +510,7 @@ function createChecksumString(data, secretKey) {
         'merchant_id', 'merchant_site_id', 'total_amount', 'currency',
         'user_token_id', 'merchant_unique_id', 'time_stamp', 'version', 'notify_url', 
         'first_name', 'last_name', 'email', 'phone1', 'country', 'state',
-        'city', 'address1', 'zip', 'success_url', 'error_url', 'pending_url',
+        'city', 'address1', 'zip', 'dateOfBirth', 'success_url', 'error_url', 'pending_url',
         'payment_method', 'payment_methods', 'payment_method_mode'
     ];
     
@@ -540,7 +529,7 @@ function createChecksumString(data, secretKey) {
         ...itemFields,
         'time_stamp', 'version', 'notify_url', 
         'first_name', 'last_name', 'email', 'phone1', 'country', 'state',
-        'city', 'address1', 'zip', 'success_url', 'error_url', 'pending_url',
+        'city', 'address1', 'zip', 'dateOfBirth', 'success_url', 'error_url', 'pending_url',
         'payment_method', 'payment_methods', 'payment_method_mode'
     ];
     
@@ -718,11 +707,6 @@ async function generateCashierUrl() {
         // Create concatenated string for checksum using cleaned data
         const concatenatedString = createChecksumString(cleanedFormData, secretKey);
         
-        // Debug: log the form data and concatenated string
-        console.log('Original form data:', formData);
-        console.log('Cleaned form data for checksum:', cleanedFormData);
-        console.log('Checksum calculation string:', concatenatedString);
-        
         // Calculate checksum
         const checksum = await sha256(concatenatedString);
         
@@ -734,7 +718,7 @@ async function generateCashierUrl() {
             'merchant_id', 'merchant_site_id', 'total_amount', 'currency',
             'user_token_id', 'merchant_unique_id', 'time_stamp', 'version', 'notify_url', 
             'first_name', 'last_name', 'email', 'phone1', 'country', 'state',
-            'city', 'address1', 'zip', 'success_url', 'error_url', 'pending_url',
+            'city', 'address1', 'zip', 'dateOfBirth', 'success_url', 'error_url', 'pending_url',
             'payment_method', 'payment_methods', 'payment_method_mode'
         ];
         
@@ -753,7 +737,7 @@ async function generateCashierUrl() {
             ...itemFields,
             'time_stamp', 'version', 'notify_url', 
             'first_name', 'last_name', 'email', 'phone1', 'country', 'state',
-            'city', 'address1', 'zip', 'success_url', 'error_url', 'pending_url',
+            'city', 'address1', 'zip', 'dateOfBirth', 'success_url', 'error_url', 'pending_url',
             'payment_method', 'payment_methods', 'payment_method_mode'
         ];
         
@@ -918,6 +902,8 @@ function fillSampleData() {
     document.getElementById('city').value = 'New York';
     document.getElementById('state').value = 'NY';
     document.getElementById('zip').value = '10001';
+    const dobField = document.getElementById('dateOfBirth');
+    if (dobField) dobField.value = '1990-01-01'; // YYYY-MM-DD format
     
     // Add a second sample item
     addItem();
@@ -939,6 +925,21 @@ function fillSampleData() {
     
     generateTimestamp();
     calculateTotal(); // Calculate totals after filling data
+
+    // Clear validation error styling for all filled (non-credential) fields.
+    // Preserve errors on credential fields so user is reminded to enter them.
+    const credentialIds = new Set(['merchant_id','merchant_site_id','secretKey']);
+    document.querySelectorAll('.form-group.error').forEach(group => {
+        const inputs = Array.from(group.querySelectorAll('input, select, textarea'));
+        const containsCredential = inputs.some(el => credentialIds.has(el.id));
+        if (!containsCredential) {
+            const hasValue = inputs.some(el => el.value && el.value.trim() !== '');
+            if (hasValue) {
+                group.classList.remove('error');
+                // Removed adding of 'success' class per user request (no green flare)
+            }
+        }
+    });
     
     showMessage('Sample data filled in!', 'info');
 }
@@ -1092,23 +1093,12 @@ function generateUniqueId(prefix = 'id') {
 
 // Easter egg initialization
 function initializeEasterEgg() {
-    console.log('Initializing Easter egg...');
-    
     // Use setTimeout to ensure DOM is fully loaded
     setTimeout(() => {
         const firstNameField = document.getElementById('first_name');
         const lastNameField = document.getElementById('last_name');
         
-        console.log('firstName field found:', !!firstNameField);
-        console.log('lastName field found:', !!lastNameField);
-        
         if (!firstNameField || !lastNameField) {
-            console.warn('Easter egg fields not found, retrying...');
-            // Try alternative selectors
-            const firstNameAlt = document.querySelector('input[name="first_name"]');
-            const lastNameAlt = document.querySelector('input[name="last_name"]');
-            console.log('Alternative firstName found:', !!firstNameAlt);
-            console.log('Alternative lastName found:', !!lastNameAlt);
             return;
         }
         
@@ -1116,10 +1106,7 @@ function initializeEasterEgg() {
             const firstName = firstNameField?.value.toLowerCase().trim();
             const lastName = lastNameField?.value.toLowerCase().trim();
             
-            console.log('Checking easter egg:', firstName, lastName);
-            
             if (firstName === 'hello' && lastName === 'kitty') {
-                console.log('Easter egg triggered!');
                 // Only trigger if not already in pink theme
                 if (document.body.getAttribute('data-theme') !== 'pink') {
                     nyaa();
@@ -1130,12 +1117,10 @@ function initializeEasterEgg() {
         // Add blur listeners to both fields - trigger when focus is lost
         if (firstNameField) {
             firstNameField.addEventListener('blur', checkEasterEgg);
-            console.log('Added blur listener to first name field');
         }
         
         if (lastNameField) {
             lastNameField.addEventListener('blur', checkEasterEgg);
-            console.log('Added blur listener to last name field');
         }
     }, 100); // Small delay to ensure DOM is ready
 }
@@ -1255,7 +1240,6 @@ if (typeof module !== 'undefined' && module.exports) {
         createChecksumString,
         getFormData,
         generateUniqueId,
-        toggleLocalStorage,
-        syncTotalAmount
+        toggleLocalStorage
     };
 }

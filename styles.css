@@ -8,15 +8,6 @@
 :root {
     /* Nuvei documentation exact colors */
     --nuvei-primary: #4a5568;
-    --nuvei-secondary: #2d3748;
-    --nuvei-accent: #4299e1;
-    --nuvei-dark: #1a202c;
-    --nuvei-light: #f7fafc;
-    --nuvei-card: #ffffff;
-    --nuvei-border: #e2e8f0;
-    --nuvei-text-primary: #2d3748;
-    --nuvei-text-secondary: #718096;
-    --nuvei-text-light: #a0aec0;
     
     --bg-primary: #f7fafc;
     --bg-secondary: #ffffff;
@@ -819,26 +810,10 @@ footer p:last-child {
     box-shadow: 0 4px 6px -1px rgba(245, 101, 101, 0.4), 0 2px 4px -1px rgba(245, 101, 101, 0.2);
 }
 
-.btn-info {
-    background-color: #4299e1;
-    color: white;
-}
-
-.btn-info:hover {
-    background-color: #3182ce;
-    box-shadow: 0 4px 6px -1px rgba(66, 153, 225, 0.4), 0 2px 4px -1px rgba(66, 153, 225, 0.2);
-}
-
 .btn-sm {
     padding: 0.5rem 1rem;
     font-size: 0.75rem;
     min-height: 2rem;
-}
-
-.btn-lg {
-    padding: 1rem 2rem;
-    font-size: 1rem;
-    min-width: 140px;
 }
 
 /* Applying unified styles to existing buttons */
@@ -1093,8 +1068,7 @@ footer p:last-child {
     box-shadow: 0 0 0 2px rgba(40, 167, 69, 0.25);
 }
 
-/* AFT and Open Amount sections */
-#aftFields,
+/* Open Amount sections */
 #openAmountSection {
     transition: all 0.3s ease;
 }
@@ -1335,13 +1309,6 @@ footer p:last-child {
 .remove-item-btn:active {
     transform: translateY(0);
     box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-}
-
-/* Item total field styling */
-.auto-calculated {
-    background-color: var(--bg-section);
-    color: var(--text-secondary);
-    font-style: italic;
 }
 
 /* Responsive adjustments for items */
