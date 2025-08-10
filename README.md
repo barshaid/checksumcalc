@@ -1,157 +1,156 @@
 # Nuvei Payment Integration Tool
 
-A comprehensive web application for Nuvei payment gateway integration, providing checksum calculation and cashier page URL generation for development and testing purposes.
+A client‑side sandbox helper for building and testing Nuvei (SafeCharge) hosted payment page requests: generate the cashier URL, compute the SHA‑256 checksum, experiment with dynamic items / parameters, and optionally persist non‑sensitive form data locally.
 
-## Features
+## Current Sandbox Endpoint
+- Cashier (Hosted Payment Page) URL: `https://ppp-test.safecharge.com/ppp/purchase.do`
 
-### 🔐 Checksum Calculator
-- Generate SHA-256 checksums for Nuvei API requests
-- Support for all standard Nuvei payment parameters
-- Real-time validation and result display
-- Copy-to-clipboard functionality
+## Key Features
 
-### 🏪 Cashier Page Generator
-- Create complete URLs for Nuvei hosted payment pages
-- Support for all cashier page parameters
-- Sandbox environment configuration
-- One-click URL testing
+### 1. Cashier URL & Checksum Generation
+- Generates SHA‑256 checksum using the exact parameter value order implemented in the tool (secret key prepended, parameter values concatenated; spaces removed from each value before hashing and inclusion in the URL).
+- Supports dynamic items (auto‑ordered `item_name_N`, `item_amount_N`, `item_quantity_N`).
+- Automatically formats item amounts and total to 2 decimals.
+- Displays: concatenated string, checksum, and full cashier URL.
 
-### 📱 User Experience
-- Responsive design for desktop and mobile
-- Tabbed interface for easy navigation
-- Form data auto-save (excluding sensitive information)
-- Input validation with visual feedback
-- Sample data generation with keyboard shortcuts
+### 2. Dynamic Items
+- Add/remove additional items (Item 1 mandatory) up to 50 (logical cap in code loop).
+- Individual collapsible item bodies to reduce visual clutter.
 
-## Getting Started
+### 3. Collapsible UI & Layout Modes
+- Collapsible "Items" section and each item row (arrow buttons ▶ / ▼ with consistent styling & borders).
+- Compact mode toggle for denser layout.
+- Light/Dark theme toggle + hidden Pink (Hello Kitty) easter egg theme.
 
-### Prerequisites
-- Modern web browser with JavaScript enabled
-- Nuvei sandbox merchant credentials
+### 4. Optional Sections & Toggles
+- Response URLs (success / error / pending / notify) block enabled only when requested.
+- Open Amount toggle revealing min/max inputs (mapped to `openAmount[min]` / `openAmount[max]`).
+- Payment Method configuration modes:
+  - Default (no preselection / filtering params sent)
+  - Preselect single method (`payment_method`)
+  - Filter list (`payment_methods` + implicit `payment_method_mode=filter`)
 
-### Installation
-1. Clone or download this repository
-2. Open `index.html` in your web browser
-3. No additional setup required - it's a pure client-side application
+### 5. Additional Parameters & Custom Fields
+- Builder UI for arbitrary name/value additional parameters.
+- Dynamic custom fields (`customFieldN`) with no hardcoded upper limit.
 
-### Usage
+### 6. Persistence (Opt‑In Auto‑Save)
+- Auto‑save OFF by default (checkbox `enableLocalStorage`).
+- On attempted navigation / tab close with unsaved data and auto‑save disabled: native browser beforeunload prompt appears; choosing *Stay* triggers a follow‑up confirm to enable auto‑save and store current (non‑sensitive) data.
+- Secret key is never persisted to LocalStorage.
 
-#### Checksum Calculator
-1. Enter your Nuvei API credentials (Merchant ID, Site ID, Secret Key)
-2. Fill in transaction details (amount, currency, etc.)
-3. Add customer information as needed
-4. Click "Calculate Checksum" to generate the SHA-256 hash
-5. Copy the generated checksum for use in your API requests
+### 7. Sample Data & Productivity
+- Keyboard shortcuts:
+  - Ctrl + Alt + S → Fill sample data (non‑credentials).
+  - Ctrl + Enter → Generate cashier URL & checksum.
+- Sample data avoids auto‑adding a second item (per user decision).
 
-#### Cashier Page Generator
-1. Enter your Nuvei API credentials
-2. Configure transaction and customer details
-3. Set up success/error/pending URLs
-4. Click "Generate Cashier URL" to create the complete payment page URL
-5. Copy the URL or open it directly for testing
+### 8. Feedback & Validation
+- Required field checks with highlighting & smooth scroll to first missing field.
+- Inline error clearing on input/focus.
+- Toast style transient messages for success / info / warnings.
 
-## Configuration
+### 9. Theming & Easter Egg
+- Light / Dark mode toggle persists via LocalStorage.
+- Hidden Hello Kitty theme activated by entering first name "Hello" & last name "Kitty" (on blur), applying playful text transformations.
 
-### Sandbox Environment
-The tool is pre-configured for Nuvei's sandbox environment:
-- **Cashier URL**: `https://secure.safecharge.com/ppp/purchase.do`
-- Use your sandbox merchant credentials for testing
+## Security Considerations
+- Development / sandbox use only. DO NOT use production secret keys here.
+- Secret key never saved to LocalStorage and intentionally stripped before persistence.
+- All parameter values sanitized by trimming & space removal for checksum/URL consistency.
+- Use HTTPS when deploying any derivative.
+- Always re‑validate and sign requests server‑side in production systems.
 
-### Sample Data
-- Press `Ctrl+Alt+S` to fill forms with sample data
-- Useful for quick testing and development
+## Supported / Implemented Parameters (Core)
+- merchant_id, merchant_site_id
+- total_amount, currency
+- merchant_unique_id, user_token_id, time_stamp, version (if provided)
+- Dynamic items: item_name_N, item_amount_N, item_quantity_N
+- Customer data: first_name, last_name, email, phone1, country, state, city, address1, zip, dateOfBirth
+- Optional response URLs: success_url, error_url, pending_url, notify_url
+- Payment method parameters: payment_method OR payment_methods (+ payment_method_mode=filter)
+- Custom fields: customFieldN
+- Open amount: openAmount[min], openAmount[max] (only when toggle enabled)
+- Additional arbitrary parameters via builder
+- checksum (computed)
 
-## Security Notes
+(Advanced parameters like 3DS, risk scoring, sub‑merchant, recurring profiles are NOT currently implemented—add via Additional Parameters if needed.)
 
-⚠️ **Important Security Considerations**:
-- This tool is for development and testing only
-- Never use production credentials in this tool
-- Secret keys are not stored in browser storage
-- Always use HTTPS in production environments
-- Validate all data server-side in production
+## How Checksum Is Built (Summary)
+1. Start with `secretKey` (not transmitted).
+2. Append values of ordered known parameters + dynamic items + custom fields.
+3. Append remaining (non‑empty) parameters alphabetically.
+4. SHA‑256 digest of resulting UTF‑8 string.
+5. Append checksum to final URL querystring.
 
-## Supported Parameters
+Spaces inside values are removed prior to both concatenation and URL creation (per internal guidance used here).
 
-### Core Transaction Fields
-- Merchant ID & Site ID
-- Amount & Currency
-- Client Unique ID & Request ID
-- Timestamp
-- User Token ID
-- Email & Customer Details
-
-### Additional Fields
-- Success/Error/Pending URLs
-- Notification URL
-- Product Name
-- Transaction Type
-- Payment Method
-- Custom Fields (1-15)
-- Shipping Information
-
-### Advanced Parameters
-- 3D Secure settings
-- Recurring payment flags
-- Risk management data
-- Sub-merchant information
-
-## API Reference
-
-The tool follows Nuvei's official API documentation for:
-- Parameter naming conventions
-- Checksum calculation algorithm
-- URL encoding standards
-- Sandbox endpoint configurations
-
-## Browser Compatibility
-
-- Chrome 60+
-- Firefox 55+
-- Safari 11+
-- Edge 79+
-
-## Development
-
-### Project Structure
+## Project Structure (Current)
 ```
-├── index.html          # Main application interface
-├── styles.css          # Responsive styling
-├── script.js           # Core functionality
-├── README.md           # This file
-└── .github/
-    └── copilot-instructions.md
+index.html
+script.js
+css/
+  styles.css
+assets/
+  logos/ (Nuvei logo variants)
+apple-pay.html (auxiliary / experimental page, if present)
+google-pay.html (auxiliary / experimental page, if present)
+test-theme.html (theme exploration, if present)
+README.md
 ```
 
-### Key Functions
-- `calculateChecksum()` - SHA-256 hash generation
-- `generateCashierUrl()` - Complete URL construction
-- `createChecksumString()` - Parameter concatenation
-- `saveFormData()` - Auto-save functionality
+## Core Functions (Selected)
+- `generateCashierUrl()` – validation, data cleaning, checksum + URL assembly.
+- `createChecksumString(data, secretKey)` – ordered concatenation logic.
+- `sha256(message)` – Web Crypto API hashing.
+- `calculateTotal()` – item totals & overall total normalization.
+- `fillSampleData()` – injects representative test values.
+- `saveFormData()` / `loadFormData()` – guarded persistence.
+- `initializeUnloadPrompt()` – beforeunload + optional enable auto‑save flow.
 
-## Contributing
+## Usage Flow
+1. Enter merchant credentials (Merchant ID, Site ID, Secret Key – secret key used only locally).
+2. Add at least one item (Item 1 required).
+3. Supply customer & optional sections (response URLs, open amount, payment methods, extra params, custom fields).
+4. Generate cashier URL (button or Ctrl+Enter) – review concatenated string & checksum.
+5. Open URL in new tab to test hosted payment page.
+6. Optionally enable auto‑save after deciding to stay on page when leaving.
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly with Nuvei sandbox
-5. Submit a pull request
-
-## License
-
-This project is provided as-is for educational and development purposes.
-
-## Support
-
-For Nuvei API documentation and support:
-- [Nuvei Developer Portal](https://docs.nuvei.com/)
-- [Nuvei Sandbox Environment](https://secure.safecharge.com/)
+## Keyboard Shortcuts
+| Shortcut | Action |
+|----------|--------|
+| Ctrl + Alt + S | Fill sample data |
+| Ctrl + Enter | Generate cashier URL & checksum |
 
 ## Changelog
+### 1.1.0 (Unreleased / Working)
+- Added collapsible items & sections with arrow buttons.
+- Added compact mode toggle.
+- Implemented optional Open Amount min/max mapping.
+- Added dynamic additional parameters builder.
+- Added dynamic custom fields (unlimited) instead of fixed count.
+- Introduced optional payment method preselect / filter modes.
+- Implemented space removal in parameter values before checksum & URL.
+- Added beforeunload native prompt + post‑stay auto‑save enable flow (auto‑save default OFF).
+- Added dark theme toggle & Hello Kitty easter egg theme.
+- Improved validation with scroll & highlighting.
+- Ensured secret key exclusion from persistence.
+- Unified arrow button styling with borders.
 
-### Version 1.0.0
-- Initial release
-- Checksum calculation functionality
-- Cashier page URL generation
-- Responsive web interface
-- Form validation and auto-save
-- Sample data generation
+### 1.0.0
+- Initial release (basic checksum & URL generation, form validation, sample data, auto‑save ON by default).
+
+## Roadmap (Potential)
+- 3DS / risk / recurring parameter helpers.
+- Export/import JSON configuration.
+- Animation transitions for collapses (height auto → smooth).
+- Custom modal for auto‑save enable (instead of native confirm) if desired.
+
+## Disclaimer
+This tool is educational and for sandbox experimentation. Always implement secure server‑side signing & validation in production. Nuvei’s official documentation is authoritative—adapt this tool if specification updates diverge.
+
+## References
+- Nuvei Documentation: https://docs.nuvei.com/
+
+---
+Generated & maintained with iterative improvements reflecting actual implemented code. Feel free to adapt.
