@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuvei Checksum Calculator & Cashier Page Generator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-controls">
+                <div class="view-controls">
+                    <button type="button" id="toggleCompact" onclick="toggleCompactMode()" title="Toggle Compact View">📊</button>
+                    <button type="button" id="toggleDarkMode" onclick="toggleDarkMode()" title="Toggle Dark Mode">🌙</button>
+                </div>
+            </div>
+            <h1>Nuvei Payment Integration Tool</h1>
+            <p>Generate checksums and cashier page URLs for Nuvei sandbox environment</p>
+        </header>
+
+        <form id="payment-form">
+            <!-- API Credentials Section -->
+            <div class="section">
+                <h3>API Credentials</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="merchant_id">Merchant ID:</label>
+                        <input type="text" id="merchant_id" name="merchant_id" placeholder="Merchant ID" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="merchant_site_id">Merchant Site ID:</label>
+                        <input type="text" id="merchant_site_id" name="merchant_site_id" placeholder="Merchant Site ID" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="secretKey">Secret Key:</label>
+                    <input type="text" id="secretKey" name="secretKey" placeholder="Secret Key" required>
+                </div>
+            </div>
+
+            <!-- Transaction Details Section -->
+            <div class="section">
+                <h3>Transaction Details</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="total_amount">Total Amount:</label>
+                        <input type="number" id="total_amount" name="total_amount" placeholder="100.00" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="currency">Currency:</label>
+                        <input type="text" id="currency" name="currency" placeholder="USD" maxlength="3" required>
+                    </div>
+                </div>
+                
+                <!-- Item Details (Required) -->
+                <div class="form-row three-columns">
+                    <div class="form-group">
+                        <label for="item_name_1">Item Name:</label>
+                        <input type="text" id="item_name_1" name="item_name_1" placeholder="Product Name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="item_amount_1">Item Amount:</label>
+                        <input type="number" id="item_amount_1" name="item_amount_1" placeholder="100.00" step="0.01" required onchange="syncTotalAmount()">
+                    </div>
+                    <div class="form-group">
+                        <label for="item_quantity_1">Item Quantity:</label>
+                        <input type="number" id="item_quantity_1" name="item_quantity_1" placeholder="1" min="1" value="1" required onchange="syncTotalAmount()">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="version">Version:</label>
+                        <input type="text" id="version" name="version" value="4.0.0" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="payment_method">Payment Method:</label>
+                        <input type="text" id="payment_method" name="payment_method" placeholder="cc_card">
+                    </div>
+                </div>
+                
+                <!-- Open Amount Section -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="enableOpenAmount" name="enableOpenAmount" onchange="toggleOpenAmount()">
+                            Enable Open Amount (User Input)
+                        </label>
+                    </div>
+                </div>
+                <div id="openAmountSection" class="form-row" style="display: none;">
+                    <div class="form-group">
+                        <label for="openAmountMin">Min Amount:</label>
+                        <input type="number" id="openAmountMin" name="openAmountMin" placeholder="1.00" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label for="openAmountMax">Max Amount:</label>
+                        <input type="number" id="openAmountMax" name="openAmountMax" placeholder="1000.00" step="0.01">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="merchant_unique_id">Client Unique ID:</label>
+                        <input type="text" id="merchant_unique_id" name="merchant_unique_id" placeholder="order_12345">
+                    </div>
+                    <div class="form-group">
+                        <label for="user_token_id">User Token ID:</label>
+                        <input type="text" id="user_token_id" name="user_token_id" placeholder="user_12345" required>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Customer Information Section -->
+            <div class="section">
+                <h3>Customer Information</h3>
+                <div class="form-row three-columns">
+                    <div class="form-group">
+                        <label for="email">Email:</label>
+                        <input type="email" id="email" name="email" placeholder="customer@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="first_name">First Name:</label>
+                        <input type="text" id="first_name" name="first_name" placeholder="John">
+                    </div>
+                    <div class="form-group">
+                        <label for="last_name">Last Name:</label>
+                        <input type="text" id="last_name" name="last_name" placeholder="Doe">
+                    </div>
+                </div>
+                <div class="form-row three-columns">
+                    <div class="form-group">
+                        <label for="country">Country:</label>
+                        <input type="text" id="country" name="country" placeholder="US" maxlength="2">
+                    </div>
+                    <div class="form-group">
+                        <label for="phone1">Phone:</label>
+                        <input type="tel" id="phone1" name="phone1" placeholder="+1234567890">
+                    </div>
+                    <div class="form-group">
+                        <label for="dateOfBirth">Date of Birth:</label>
+                        <input type="date" id="dateOfBirth" name="dateOfBirth">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Billing Address Section -->
+            <div class="section">
+                <h3>Billing Address</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="address1">Address:</label>
+                        <input type="text" id="address1" name="address1" placeholder="123 Main St">
+                    </div>
+                    <div class="form-group">
+                        <label for="city">City:</label>
+                        <input type="text" id="city" name="city" placeholder="New York">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="state">State/Province:</label>
+                        <input type="text" id="state" name="state" placeholder="NY">
+                    </div>
+                    <div class="form-group">
+                        <label for="zip">ZIP/Postal Code:</label>
+                        <input type="text" id="zip" name="zip" placeholder="10001">
+                    </div>
+                </div>
+            </div>
+
+            <!-- URLs Section -->
+            <div class="section">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="enableResponseUrls" name="enableResponseUrls" onchange="toggleResponseUrls()">
+                            Edit Response URLs (Optional)
+                        </label>
+                    </div>
+                </div>
+                <div id="responseUrlsSection" style="display: none;">
+                    <h3>Response URLs</h3>
+                    <div class="form-group">
+                        <label for="success_url">Success URL:</label>
+                        <input type="url" id="success_url" name="success_url" placeholder="https://yoursite.com/success">
+                    </div>
+                    <div class="form-group">
+                        <label for="error_url">Error URL:</label>
+                        <input type="url" id="error_url" name="error_url" placeholder="https://yoursite.com/error">
+                    </div>
+                    <div class="form-group">
+                        <label for="pending_url">Pending URL:</label>
+                        <input type="url" id="pending_url" name="pending_url" placeholder="https://yoursite.com/pending">
+                    </div>
+                    <div class="form-group">
+                        <label for="notify_url">Notification URL (Required): 
+                            <a href="https://webhook.site" target="_blank" class="webhook-link">Get webhook URL</a>
+                        </label>
+                        <input type="url" id="notify_url" name="notify_url" placeholder="https://webhook.site/your-unique-id" required>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Custom Fields Section -->
+            <div class="section">
+                <h3>Custom Fields</h3>
+                <div class="form-row three-columns">
+                    <div class="form-group">
+                        <label for="customField1">Custom Field 1:</label>
+                        <input type="text" id="customField1" name="customField1" placeholder="Custom value 1">
+                    </div>
+                    <div class="form-group">
+                        <label for="customField2">Custom Field 2:</label>
+                        <input type="text" id="customField2" name="customField2" placeholder="Custom value 2">
+                    </div>
+                    <div class="form-group">
+                        <label for="customField3">Custom Field 3:</label>
+                        <input type="text" id="customField3" name="customField3" placeholder="Custom value 3">
+                    </div>
+                </div>
+                <div class="form-row three-columns">
+                    <div class="form-group">
+                        <label for="customField4">Custom Field 4:</label>
+                        <input type="text" id="customField4" name="customField4" placeholder="Custom value 4">
+                    </div>
+                    <div class="form-group">
+                        <label for="customField5">Custom Field 5:</label>
+                        <input type="text" id="customField5" name="customField5" placeholder="Custom value 5">
+                    </div>
+                    <div class="form-group">
+                        <label for="customField6">Custom Field 6:</label>
+                        <input type="text" id="customField6" name="customField6" placeholder="Custom value 6">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Additional Parameters Section -->
+            <div class="section">
+                <h3>Additional Parameters</h3>
+                <p class="section-description">Add custom parameter name-value pairs for your specific needs</p>
+                <div id="additionalParameters">
+                    <!-- Dynamic parameters will be added here -->
+                </div>
+                <div class="form-actions">
+                    <button type="button" onclick="addAdditionalParameter()" class="add-param-btn">+ Add Parameter</button>
+                </div>
+            </div>
+
+            <!-- Timestamp Section (Last) -->
+            <div class="section">
+                <h3>Timestamp</h3>
+                <div class="form-group">
+                    <label for="time_stamp">Timestamp (YYYY-MM-DD.HH:MM:SS):</label>
+                    <input type="text" id="time_stamp" name="time_stamp" placeholder="2025-08-10.12:00:00">
+                    <button type="button" onclick="generateTimestamp()">Generate Current</button>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+                <button type="button" onclick="generateCashierUrl()">Generate Cashier URL & Checksum</button>
+                <button type="button" onclick="clearForm()">Clear Form</button>
+                <button type="button" onclick="fillSampleData()">Fill Sample Data</button>
+                <label style="margin-left: 20px;">
+                    <input type="checkbox" id="enableLocalStorage" onchange="toggleLocalStorage()" checked>
+                    Auto-save form data
+                </label>
+            </div>
+        </form>
+
+        <!-- Results Section -->
+        <div id="results" class="result-section" style="display: none;">
+            <h3>Generated Results</h3>
+            <div class="result-group">
+                <label>Checksum String (concatenated parameters):</label>
+                <textarea id="concatenated-string" readonly></textarea>
+            </div>
+            <div class="result-group">
+                <label>SHA-256 Checksum:</label>
+                <input type="text" id="calculated-checksum" readonly>
+                <button type="button" onclick="copyToClipboard('calculated-checksum')">Copy</button>
+            </div>
+            <div class="result-group">
+                <label>Complete Cashier URL:</label>
+                <textarea id="cashier-url" readonly></textarea>
+                <button type="button" onclick="copyToClipboard('cashier-url')">Copy URL</button>
+                <button type="button" onclick="openCashierPage()">Open in New Tab</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>Nuvei Sandbox Environment Tool - For Development & Testing Only</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
