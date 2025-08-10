@@ -79,12 +79,114 @@ function generateTimestamp() {
 
 // Sync total amount with item amount for simple transactions
 function syncTotalAmount() {
-    const itemAmount = document.getElementById('item_amount_1').value;
-    const itemQuantity = document.getElementById('item_quantity_1').value || 1;
+    // This function is kept for backward compatibility but now calls calculateTotal
+    calculateTotal();
+}
+
+// Items Management
+let itemCounter = 1; // Start at 1 since item_1 is mandatory
+
+function getNextItemNumber() {
+    // Find the next available item number
+    let nextNumber = 2; // Start from 2 since item 1 is mandatory
+    while (document.getElementById(`item-${nextNumber}`)) {
+        nextNumber++;
+    }
+    return nextNumber;
+}
+
+function addItem() {
+    const itemNumber = getNextItemNumber();
+    const container = document.getElementById('itemsContainer');
     
-    if (itemAmount) {
-        const totalAmount = (parseFloat(itemAmount) * parseInt(itemQuantity)).toFixed(2);
-        document.getElementById('total_amount').value = totalAmount;
+    const itemDiv = document.createElement('div');
+    itemDiv.className = 'item-row';
+    itemDiv.id = `item-${itemNumber}`;
+    itemDiv.setAttribute('data-item-number', itemNumber);
+    
+    itemDiv.innerHTML = `
+        <div class="item-header">
+            <span class="item-label">Item ${itemNumber}</span>
+        </div>
+        <div class="form-row four-columns">
+            <div class="form-group">
+                <label for="item_name_${itemNumber}">Item Name:</label>
+                <input type="text" id="item_name_${itemNumber}" name="item_name_${itemNumber}" placeholder="Product Name">
+            </div>
+            <div class="form-group">
+                <label for="item_amount_${itemNumber}">Item Amount:</label>
+                <input type="text" id="item_amount_${itemNumber}" name="item_amount_${itemNumber}" placeholder="0.00" onchange="calculateTotal()">
+            </div>
+            <div class="form-group">
+                <label for="item_quantity_${itemNumber}">Quantity:</label>
+                <input type="text" id="item_quantity_${itemNumber}" name="item_quantity_${itemNumber}" placeholder="1" value="1" onchange="calculateTotal()">
+            </div>
+            <div class="form-group">
+                <label>Item Total:</label>
+                <input type="text" id="item_total_${itemNumber}" placeholder="0.00" readonly class="auto-calculated">
+            </div>
+        </div>
+        <button type="button" class="remove-item-btn" onclick="removeItem(${itemNumber})">Remove</button>
+    `;
+    
+    container.appendChild(itemDiv);
+    itemCounter = Math.max(itemCounter, itemNumber); // Update counter to highest number
+    calculateTotal();
+}
+
+function removeItem(itemNumber) {
+    if (itemNumber === 1) {
+        alert('Item 1 is required and cannot be removed.');
+        return;
+    }
+    
+    const itemDiv = document.getElementById(`item-${itemNumber}`);
+    if (itemDiv) {
+        itemDiv.remove();
+        calculateTotal();
+    }
+}
+
+// Enhanced total calculation - simplified without transaction-level adjustments
+function calculateTotal() {
+    let transactionTotal = 0;
+    
+    // Calculate per-item totals and sum them
+    const itemRows = document.querySelectorAll('.item-row');
+    itemRows.forEach(row => {
+        const itemNumber = row.getAttribute('data-item-number');
+        const amountField = document.getElementById(`item_amount_${itemNumber}`);
+        const quantityField = document.getElementById(`item_quantity_${itemNumber}`);
+        const totalField = document.getElementById(`item_total_${itemNumber}`);
+        
+        if (amountField && quantityField && totalField) {
+            const amount = parseFloat(amountField.value) || 0;
+            const quantity = parseInt(quantityField.value) || 0;
+            
+            // Format amount with 2 decimal places
+            if (amountField.value && amount > 0) {
+                amountField.value = amount.toFixed(2);
+            }
+            
+            // Calculate item total: item_amount * quantity
+            const itemTotal = amount * quantity;
+            totalField.value = itemTotal.toFixed(2);
+            
+            transactionTotal += itemTotal;
+        }
+    });
+    
+    // Update total amount field
+    const totalAmountField = document.getElementById('total_amount');
+    if (totalAmountField) {
+        // Round to nearest hundredth as per Nuvei documentation
+        totalAmountField.value = Math.round(transactionTotal * 100) / 100;
+        totalAmountField.value = totalAmountField.value.toString();
+        if (totalAmountField.value.indexOf('.') === -1) {
+            totalAmountField.value += '.00';
+        } else if (totalAmountField.value.split('.')[1].length === 1) {
+            totalAmountField.value += '0';
+        }
     }
 }
 
@@ -125,44 +227,125 @@ function toggleResponseUrls() {
     }
 }
 
+// Toggle payment method fields based on selected option
+function togglePaymentMethodFields() {
+    const selectedRadio = document.querySelector('input[name="paymentMethodOption"]:checked');
+    const option = selectedRadio ? selectedRadio.value : 'default';
+    const fieldsContainer = document.getElementById('paymentMethodFields');
+    const singleMethodGroup = document.getElementById('singleMethodGroup');
+    const multipleMethodsGroup = document.getElementById('multipleMethodsGroup');
+    
+    // Clear all fields first
+    document.getElementById('payment_method').value = '';
+    document.getElementById('payment_methods').value = '';
+    
+    if (option === 'default') {
+        fieldsContainer.style.display = 'none';
+        singleMethodGroup.style.display = 'none';
+        multipleMethodsGroup.style.display = 'none';
+    } else if (option === 'preselect') {
+        fieldsContainer.style.display = 'block';
+        singleMethodGroup.style.display = 'block';
+        multipleMethodsGroup.style.display = 'none';
+    } else if (option === 'filter') {
+        fieldsContainer.style.display = 'block';
+        singleMethodGroup.style.display = 'none';
+        multipleMethodsGroup.style.display = 'block';
+    }
+}
+
 // Additional Parameters Management
 let additionalParamCounter = 0;
 
+function getNextAdditionalParamNumber() {
+    // Find the next available additional parameter number
+    let nextNumber = 1;
+    while (document.getElementById(`additional-param-${nextNumber}`)) {
+        nextNumber++;
+    }
+    return nextNumber;
+}
+
 function addAdditionalParameter() {
-    additionalParamCounter++;
+    const paramNumber = getNextAdditionalParamNumber();
     const container = document.getElementById('additionalParameters');
     
     const paramDiv = document.createElement('div');
     paramDiv.className = 'additional-param';
-    paramDiv.id = `additional-param-${additionalParamCounter}`;
+    paramDiv.id = `additional-param-${paramNumber}`;
     
     paramDiv.innerHTML = `
         <div class="form-group param-name">
-            <label for="param-name-${additionalParamCounter}">Parameter Name:</label>
-            <input type="text" id="param-name-${additionalParamCounter}" 
-                   name="param-name-${additionalParamCounter}" 
+            <label for="param-name-${paramNumber}">Parameter Name:</label>
+            <input type="text" id="param-name-${paramNumber}" 
+                   name="param-name-${paramNumber}" 
                    placeholder="customParam" 
-                   data-param-counter="${additionalParamCounter}">
+                   data-param-counter="${paramNumber}">
         </div>
         <div class="form-group param-value">
-            <label for="param-value-${additionalParamCounter}">Parameter Value:</label>
-            <input type="text" id="param-value-${additionalParamCounter}" 
-                   name="param-value-${additionalParamCounter}" 
+            <label for="param-value-${paramNumber}">Parameter Value:</label>
+            <input type="text" id="param-value-${paramNumber}" 
+                   name="param-value-${paramNumber}" 
                    placeholder="customValue" 
-                   data-param-counter="${additionalParamCounter}">
+                   data-param-counter="${paramNumber}">
         </div>
-        <button type="button" class="remove-param-btn" onclick="removeAdditionalParameter(${additionalParamCounter})">
+        <button type="button" class="remove-param-btn" onclick="removeAdditionalParameter(${paramNumber})">
             Remove
         </button>
     `;
     
     container.appendChild(paramDiv);
+    additionalParamCounter = Math.max(additionalParamCounter, paramNumber); // Update counter to highest number
 }
 
 function removeAdditionalParameter(counter) {
     const paramDiv = document.getElementById(`additional-param-${counter}`);
     if (paramDiv) {
         paramDiv.remove();
+    }
+}
+
+// Custom Fields Management
+let customFieldCounter = 0;
+
+function getNextCustomFieldNumber() {
+    // Find the next available custom field number
+    let nextNumber = 1;
+    while (document.getElementById(`custom-field-${nextNumber}`)) {
+        nextNumber++;
+    }
+    return nextNumber;
+}
+
+function addCustomField() {
+    const fieldNumber = getNextCustomFieldNumber();
+    const container = document.getElementById('customFields');
+    
+    const fieldDiv = document.createElement('div');
+    fieldDiv.className = 'additional-param';
+    fieldDiv.id = `custom-field-${fieldNumber}`;
+    
+    fieldDiv.innerHTML = `
+        <div class="form-group">
+            <label for="customField${fieldNumber}">Custom Field ${fieldNumber}:</label>
+            <input type="text" id="customField${fieldNumber}" 
+                   name="customField${fieldNumber}" 
+                   placeholder="Custom value ${fieldNumber}" 
+                   data-custom-field="${fieldNumber}">
+        </div>
+        <button type="button" class="remove-param-btn" onclick="removeCustomField(${fieldNumber})">
+            Remove
+        </button>
+    `;
+    
+    container.appendChild(fieldDiv);
+    customFieldCounter = Math.max(customFieldCounter, fieldNumber); // Update counter to highest number
+}
+
+function removeCustomField(counter) {
+    const fieldDiv = document.getElementById(`custom-field-${counter}`);
+    if (fieldDiv) {
+        fieldDiv.remove();
     }
 }
 
@@ -205,6 +388,27 @@ function getFormData() {
         }
     });
     
+    // Handle dynamic custom fields
+    const customFields = document.querySelectorAll('[data-custom-field]');
+    customFields.forEach(field => {
+        if (field.value.trim()) {
+            data[field.name] = field.value.trim();
+        }
+    });
+    
+    // Handle dynamic items - collect all items with their properties
+    const itemRows = document.querySelectorAll('.item-row');
+    itemRows.forEach(row => {
+        const itemNumber = row.getAttribute('data-item-number');
+        const itemName = document.getElementById(`item_name_${itemNumber}`)?.value.trim();
+        const itemAmount = document.getElementById(`item_amount_${itemNumber}`)?.value.trim();
+        const itemQuantity = document.getElementById(`item_quantity_${itemNumber}`)?.value.trim();
+        
+        if (itemName) data[`item_name_${itemNumber}`] = itemName;
+        if (itemAmount) data[`item_amount_${itemNumber}`] = itemAmount;
+        if (itemQuantity) data[`item_quantity_${itemNumber}`] = itemQuantity;
+    });
+    
     // Handle open amount parameters
     if (data.enableOpenAmount === 'true') {
         if (data.openAmountMin) {
@@ -238,34 +442,80 @@ function getFormData() {
         }
     });
     
+    // Handle payment method configuration
+    const selectedRadio = document.querySelector('input[name="paymentMethodOption"]:checked');
+    const paymentMethodOption = selectedRadio ? selectedRadio.value : 'default';
+    
+    if (paymentMethodOption === 'default') {
+        // Don't include any payment method parameters for default
+        delete data.payment_method;
+        delete data.payment_methods;
+        delete data.paymentMethodOption;
+    } else if (paymentMethodOption === 'preselect') {
+        // Include only payment_method for preselection
+        delete data.payment_methods;
+        delete data.paymentMethodOption;
+    } else if (paymentMethodOption === 'filter') {
+        // Include payment_methods and payment_method_mode for filtering
+        delete data.payment_method;
+        delete data.paymentMethodOption;
+        if (data.payment_methods) {
+            data.payment_method_mode = 'filter';
+        }
+    }
+    
     return data;
 }
 
 // Create concatenated string for checksum calculation (Nuvei Payment Page format)
 function createChecksumString(data, secretKey) {
-    // The checksum must use the exact same parameter order as they appear in the URL
-    // Based on the failing URL, the order is:
-    const exactParameterOrder = [
+    // According to Nuvei documentation, the checksum must use the exact order 
+    // that parameters are sent in the request URL, NOT alphabetical order
+    // Based on the example in their documentation, the standard order is:
+    const urlParameterOrder = [
         'merchant_id', 'merchant_site_id', 'total_amount', 'currency',
-        'item_name_1', 'item_amount_1', 'item_quantity_1', 'version',
-        'merchant_unique_id', 'user_token_id', 'email', 'first_name',
-        'last_name', 'country', 'phone1', 'address1', 'city', 'state',
-        'zip', 'notify_url', 'customField1', 'customField2', 'time_stamp'
+        'user_token_id', 'merchant_unique_id', 'time_stamp', 'version', 'notify_url', 
+        'first_name', 'last_name', 'email', 'phone1', 'country', 'state',
+        'city', 'address1', 'zip', 'success_url', 'error_url', 'pending_url',
+        'payment_method', 'payment_methods', 'payment_method_mode'
     ];
+    
+    // Add item fields in order (item_name_N, item_amount_N, item_quantity_N for each item)
+    const itemFields = [];
+    for (let i = 1; i <= 50; i++) { // Support up to 50 items
+        if (data[`item_name_${i}`] || data[`item_amount_${i}`] || data[`item_quantity_${i}`]) {
+            itemFields.push(`item_name_${i}`, `item_amount_${i}`, `item_quantity_${i}`);
+        }
+    }
+    
+    // Insert item fields after merchant info but before customer info
+    const parameterOrderWithItems = [
+        'merchant_id', 'merchant_site_id', 'total_amount', 'currency',
+        'user_token_id', 'merchant_unique_id',
+        ...itemFields,
+        'time_stamp', 'version', 'notify_url', 
+        'first_name', 'last_name', 'email', 'phone1', 'country', 'state',
+        'city', 'address1', 'zip', 'success_url', 'error_url', 'pending_url',
+        'payment_method', 'payment_methods', 'payment_method_mode'
+    ];
+    
+    // Add any custom fields (these typically come after standard fields)
+    const customFieldKeys = Object.keys(data).filter(key => key.startsWith('customField')).sort();
+    const parameterOrder = [...parameterOrderWithItems, ...customFieldKeys];
     
     // Start with secret key
     let concatenatedString = secretKey;
     
-    // Add parameters in exact URL order
-    for (const key of exactParameterOrder) {
+    // Add parameter values in URL order (only values, no keys)
+    for (const key of parameterOrder) {
         if (data[key] && data[key] !== '') {
             concatenatedString += data[key];
         }
     }
     
-    // Add any additional parameters that weren't in the core list (alphabetically)
+    // Add any remaining parameters that weren't in the core list (alphabetically)
     const remainingKeys = Object.keys(data)
-        .filter(key => !exactParameterOrder.includes(key))
+        .filter(key => !parameterOrder.includes(key))
         .sort();
     
     for (const key of remainingKeys) {
@@ -317,8 +567,10 @@ async function generateCashierUrl() {
         // Create concatenated string for checksum
         const concatenatedString = createChecksumString(formData, secretKey);
         
-        // Debug: log the concatenated string
+        // Debug: log the form data and concatenated string
+        console.log('Form data for checksum:', formData);
         console.log('Checksum calculation string:', concatenatedString);
+        console.log('URL parameter order used for checksum:', Object.keys(formData).filter(key => formData[key] && formData[key] !== '').map(key => `${key}: ${formData[key]}`));
         
         // Calculate checksum
         const checksum = await sha256(concatenatedString);
@@ -326,11 +578,55 @@ async function generateCashierUrl() {
         // Add checksum to form data
         formData.checksum = checksum;
         
-        // Build URL parameters
+        // Build URL parameters in the same order as used for checksum calculation
+        const urlParameterOrder = [
+            'merchant_id', 'merchant_site_id', 'total_amount', 'currency',
+            'user_token_id', 'merchant_unique_id', 'time_stamp', 'version', 'notify_url', 
+            'first_name', 'last_name', 'email', 'phone1', 'country', 'state',
+            'city', 'address1', 'zip', 'success_url', 'error_url', 'pending_url',
+            'payment_method', 'payment_methods', 'payment_method_mode'
+        ];
+        
+        // Add item fields in order
+        const itemFields = [];
+        for (let i = 1; i <= 50; i++) { // Support up to 50 items
+            if (formData[`item_name_${i}`] || formData[`item_amount_${i}`] || formData[`item_quantity_${i}`]) {
+                itemFields.push(`item_name_${i}`, `item_amount_${i}`, `item_quantity_${i}`);
+            }
+        }
+        
+        // Insert item fields after merchant info
+        const parameterOrderWithItems = [
+            'merchant_id', 'merchant_site_id', 'total_amount', 'currency',
+            'user_token_id', 'merchant_unique_id',
+            ...itemFields,
+            'time_stamp', 'version', 'notify_url', 
+            'first_name', 'last_name', 'email', 'phone1', 'country', 'state',
+            'city', 'address1', 'zip', 'success_url', 'error_url', 'pending_url',
+            'payment_method', 'payment_methods', 'payment_method_mode'
+        ];
+        
+        // Add custom fields to the order
+        const customFieldKeys = Object.keys(formData).filter(key => key.startsWith('customField')).sort();
+        const fullParameterOrder = [...parameterOrderWithItems, ...customFieldKeys, 'checksum'];
+        
         const urlParams = new URLSearchParams();
-        for (const [key, value] of Object.entries(formData)) {
-            if (value && value !== '') {
-                urlParams.append(key, value);
+        
+        // Add parameters in the specified order
+        for (const key of fullParameterOrder) {
+            if (formData[key] && formData[key] !== '') {
+                urlParams.append(key, formData[key]);
+            }
+        }
+        
+        // Add any remaining parameters not in the core list
+        const remainingKeys = Object.keys(formData)
+            .filter(key => !fullParameterOrder.includes(key))
+            .sort();
+        
+        for (const key of remainingKeys) {
+            if (formData[key] && formData[key] !== '') {
+                urlParams.append(key, formData[key]);
             }
         }
         
@@ -406,12 +702,41 @@ function clearForm() {
     
     // Reset dynamic sections
     document.getElementById('openAmountSection').style.display = 'none';
-    document.getElementById('aftFields').style.display = 'none';
+    document.getElementById('responseUrlsSection').style.display = 'none';
+    document.getElementById('paymentMethodFields').style.display = 'none';
     
     // Clear additional parameters
     const additionalParamsContainer = document.getElementById('additionalParameters');
     additionalParamsContainer.innerHTML = '';
     additionalParamCounter = 0;
+    
+    // Clear custom fields
+    const customFieldsContainer = document.getElementById('customFields');
+    customFieldsContainer.innerHTML = '';
+    customFieldCounter = 0;
+    
+    // Reset items to only item 1
+    const itemsContainer = document.getElementById('itemsContainer');
+    const allItems = itemsContainer.querySelectorAll('.item-row');
+    allItems.forEach(item => {
+        const itemNumber = item.getAttribute('data-item-number');
+        if (itemNumber !== '1') {
+            item.remove();
+        }
+    });
+    itemCounter = 1;
+    
+    // Reset item 1 values
+    document.getElementById('item_name_1').value = '';
+    document.getElementById('item_amount_1').value = '';
+    document.getElementById('item_quantity_1').value = '1';
+    document.getElementById('item_total_1').value = '';
+    
+    // Reset payment method option to default (this is handled by form.reset() with the checked attribute)
+    togglePaymentMethodFields();
+    
+    // Recalculate totals
+    calculateTotal();
     
     showMessage('Form cleared!', 'info');
 }
@@ -423,7 +748,6 @@ function fillSampleData() {
     // document.getElementById('merchant_site_id').value = 'YOUR_SITE_ID';
     
     // Sample transaction data
-    document.getElementById('total_amount').value = '100.00';
     document.getElementById('currency').value = 'USD';
     document.getElementById('item_name_1').value = 'Sample Product';
     document.getElementById('item_amount_1').value = '100.00';
@@ -444,11 +768,26 @@ function fillSampleData() {
     document.getElementById('state').value = 'NY';
     document.getElementById('zip').value = '10001';
     
+    // Add a second sample item
+    addItem();
+    document.getElementById('item_name_2').value = 'Sample Product 2';
+    document.getElementById('item_amount_2').value = '50.00';
+    document.getElementById('item_quantity_2').value = '2';
+    
     // Sample custom fields
+    // Clear existing custom fields first
+    const customFieldsContainer = document.getElementById('customFields');
+    customFieldsContainer.innerHTML = '';
+    customFieldCounter = 0;
+    
+    // Add sample custom fields
+    addCustomField();
     document.getElementById('customField1').value = 'affiliate-xyz';
+    addCustomField();
     document.getElementById('customField2').value = 'promo-2024';
     
     generateTimestamp();
+    calculateTotal(); // Calculate totals after filling data
     
     showMessage('Sample data filled in!', 'info');
 }
@@ -620,6 +959,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialize with current timestamp
     generateTimestamp();
+    
+    // Initialize total calculation
+    calculateTotal();
     
     // Keyboard shortcuts
     document.addEventListener('keydown', function(e) {
