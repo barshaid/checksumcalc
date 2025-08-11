@@ -556,6 +556,15 @@ header p {
     color: var(--text-primary);
 }
 
+/* Auto-resize textareas - disable user control, only height adjusts automatically */
+.form-group textarea {
+    resize: none;
+    overflow: hidden;
+    width: 100%;
+    box-sizing: border-box;
+    min-height: 40px;
+}
+
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
@@ -697,6 +706,14 @@ header p {
     font-family: monospace;
     line-height: 1.4;
     transition: all 0.2s ease;
+}
+
+/* Result textareas - disable user control, only height adjusts automatically */
+.result-group textarea {
+    resize: none;
+    overflow: hidden;
+    box-sizing: border-box;
+    min-height: 40px;
 }
 
 .result-group textarea {

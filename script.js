@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeCompactMode();
     initializeErrorHandling();
     initializeAutoSave(); // NEW: set checkbox state from persistence before loading
+    initializeAutoResizeTextareas(); // NEW: make textareas auto-resize
     
     // Load saved form data
     loadFormData();
@@ -206,6 +207,72 @@ function initializeCompactMode() {
     } else {
         document.getElementById('toggleCompact').textContent = '📊';
     }
+}
+
+// Auto-resize textareas based on content
+function initializeAutoResizeTextareas() {
+    // Function to adjust textarea height only (not width)
+    function autoResize(textarea) {
+        // Disable user resizing - only allow automatic height adjustment
+        textarea.style.resize = 'none';
+        textarea.style.overflow = 'hidden';
+        
+        // Reset height to auto to get the correct scrollHeight
+        textarea.style.height = 'auto';
+        
+        // Set height to scrollHeight but with min limit (no max to allow unlimited growth)
+        const minHeight = 40; // Minimum height in pixels (about 2 rows)
+        const newHeight = Math.max(minHeight, textarea.scrollHeight);
+        
+        textarea.style.height = newHeight + 'px';
+        
+        // Ensure width is fixed and cannot be changed by user
+        textarea.style.width = '100%';
+        textarea.style.boxSizing = 'border-box';
+    }
+    
+    // Find all textareas and add auto-resize functionality
+    const textareas = document.querySelectorAll('textarea');
+    
+    textareas.forEach(textarea => {
+        // Set initial height and disable user resizing
+        autoResize(textarea);
+        
+        // Add event listeners for real-time resizing
+        textarea.addEventListener('input', () => autoResize(textarea));
+        textarea.addEventListener('paste', () => {
+            // Small delay to allow paste content to be processed
+            setTimeout(() => autoResize(textarea), 10);
+        });
+        
+        // Also resize on focus (in case content was set programmatically)
+        textarea.addEventListener('focus', () => autoResize(textarea));
+    });
+    
+    // Watch for dynamically added textareas (like in additional parameters)
+    const observer = new MutationObserver(mutations => {
+        mutations.forEach(mutation => {
+            mutation.addedNodes.forEach(node => {
+                if (node.nodeType === 1) { // Element node
+                    const newTextareas = node.querySelectorAll ? node.querySelectorAll('textarea') : [];
+                    newTextareas.forEach(textarea => {
+                        autoResize(textarea);
+                        textarea.addEventListener('input', () => autoResize(textarea));
+                        textarea.addEventListener('paste', () => {
+                            setTimeout(() => autoResize(textarea), 10);
+                        });
+                        textarea.addEventListener('focus', () => autoResize(textarea));
+                    });
+                }
+            });
+        });
+    });
+    
+    // Start observing the document for changes
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
 }
 
 // Generate current timestamp
@@ -1095,6 +1162,14 @@ function fillSampleData() {
     generateTimestamp();
     calculateTotal();
 
+    // Trigger auto-resize for all textareas after filling data
+    setTimeout(() => {
+        document.querySelectorAll('textarea').forEach(textarea => {
+            const event = new Event('input', { bubbles: true });
+            textarea.dispatchEvent(event);
+        });
+    }, 100);
+
     const credentialIds = new Set(['merchant_id','merchant_site_id','secretKey']);
     document.querySelectorAll('.form-group.error').forEach(group => {
         const inputs = Array.from(group.querySelectorAll('input, select, textarea'));
@@ -1269,6 +1344,14 @@ function loadFormData() {
             if (data.enableOpenAmount === 'true') { const c = document.getElementById('enableOpenAmount'); if (c){ c.checked = true; toggleOpenAmount(); } }
             if (data.enableResponseUrls === 'true') { const c = document.getElementById('enableResponseUrls'); if (c){ c.checked = true; toggleResponseUrls(); } }
             calculateTotal();
+            
+            // Trigger auto-resize for all textareas after loading data
+            setTimeout(() => {
+                document.querySelectorAll('textarea').forEach(textarea => {
+                    const event = new Event('input', { bubbles: true });
+                    textarea.dispatchEvent(event);
+                });
+            }, 100);
         }
     } catch (error) { console.error('Error loading saved form data:', error); }
 }

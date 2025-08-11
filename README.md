@@ -1,6 +1,8 @@
 # Nuvei Payment Integration Tool
 
-A client‑side sandbox helper for building and testing Nuvei (SafeCharge) hosted payment page requests: generate the cashier URL, compute a cryptographic checksum (SHA‑256 default, MD5 optional), experiment with dynamic items / parameters, and optionally persist non‑sensitive form data locally.
+A comprehensive client‑side sandbox### 11. Hash Algorithm Selection
+- Dropdown to choose between SHA-256 and MD5. Use SHA-256 for real integrations.
+- Checksum display label auto-adjusts (e.g., "MD5 Checksum:" when MD5 selected).lper for building and testing Nuvei (SafeCharge) hosted payment page requests: generate the cashier URL, compute a cryptographic checksum (SHA‑256 default, MD5 optional), experiment with dynamic items / parameters, and optionally persist non‑sensitive form data locally.
 
 ## Current Sandbox Endpoint
 - Cashier (Hosted Payment Page) URL: `https://ppp-test.safecharge.com/ppp/purchase.do`
@@ -14,16 +16,29 @@ A client‑side sandbox helper for building and testing Nuvei (SafeCharge) hoste
 - Automatically formats item amounts and total to 2 decimals.
 - Displays: concatenated string, checksum, and full cashier URL.
 
-### 2. Dynamic Items
+### 2. Smart Auto-Resizing Text Areas
+- **Auto-expanding textareas**: All text areas automatically grow in height based on content
+- **Height-only resizing**: Textareas expand vertically only, width remains fixed
+- **No manual resize**: User cannot manually resize textareas - purely automatic behavior
+- **Unlimited growth**: No maximum height restriction for long URLs or multi-line content
+- **Real-time adjustment**: Resizes immediately on typing, pasting, or content changes
+- **Works everywhere**: Applied to URL fields, payment methods, and all textarea elements
+
+### 3. Dynamic Items
 - Add/remove additional items (Item 1 mandatory) up to 50 (logical cap in code loop).
 - Individual collapsible item bodies to reduce visual clutter.
 
-### 3. Collapsible UI & Layout Modes
+### 4. Optional Sections & Toggles
 - Collapsible "Items" section and each item row (arrow buttons ▶ / ▼ with consistent styling & borders).
 - Compact mode toggle for denser layout.
 - Light/Dark theme toggle.
 
-### 4. Optional Sections & Toggles
+### 4. Collapsible UI & Layout Modes
+- Collapsible "Items" section and each item row (arrow buttons ▶ / ▼ with consistent styling & borders).
+- Compact mode toggle for denser layout.
+- Light/Dark theme toggle.
+
+### 5. Optional Sections & Toggles
 - Response URLs (success / error / pending / notify) block enabled only when requested.
 - Open Amount toggle revealing min/max inputs (mapped to `openAmount[min]` / `openAmount[max]`).
 - Payment Method configuration modes:
@@ -31,32 +46,32 @@ A client‑side sandbox helper for building and testing Nuvei (SafeCharge) hoste
   - Preselect single method (`payment_method`)
   - Filter list (`payment_methods` + implicit `payment_method_mode=filter`)
 
-### 5. Additional Parameters & Custom Fields
+### 6. Additional Parameters & Custom Fields
 - Builder UI for arbitrary name/value additional parameters.
 - Dynamic custom fields (`customFieldN`) capped at 15 (to keep payload reasonable & UI usable).
 
-### 6. Persistence (Opt‑In Auto‑Save)
+### 7. Persistence (Opt‑In Auto‑Save)
 - Auto‑save OFF by default (checkbox `enableLocalStorage`).
 - Auto‑save preference persisted across sessions.
 - On attempted navigation / tab close with unsaved data and auto‑save disabled: native browser beforeunload prompt appears; choosing *Stay* triggers a follow‑up confirm to enable auto‑save and store current (non‑sensitive) data.
 - Dynamic item recreation on load when auto‑save enabled.
 - Secret key is never persisted to LocalStorage.
 
-### 7. Sample Data & Productivity
+### 8. Sample Data & Productivity
 - Keyboard shortcuts:
   - Ctrl + Alt + S → Fill sample data (non‑credentials).
   - Ctrl + Enter → Generate cashier URL & checksum.
 - Sample data avoids auto‑adding a second item (per user decision).
 
-### 8. Feedback & Validation
+### 9. Feedback & Validation
 - Required field checks with highlighting & smooth scroll to first missing field.
 - Inline error clearing on input/focus.
 - Toast style transient messages for success / info / warnings.
 
-### 9. Theming
+### 10. Theming
 - Light / Dark mode toggle persists via LocalStorage.
 
-### 10. Hash Algorithm Selection
+### 11. Hash Algorithm Selection
 - Dropdown to choose between SHA-256 and MD5. Use SHA-256 for real integrations.
 - Checksum display label auto-adjusts (e.g., “MD5 Checksum:” when MD5 selected).
 
@@ -115,6 +130,7 @@ README.md
 - `initializeUnloadPrompt()` – beforeunload + optional enable auto‑save flow.
 - `toggleLocalStorage()` – manages auto‑save preference persistence.
 - `initializeAutoSave()` – restores auto‑save setting from localStorage.
+- `initializeAutoResizeTextareas()` – **NEW**: sets up smart auto-resizing for all textareas with mutation observer for dynamic elements.
 
 ## Usage Flow
 1. Enter merchant credentials (Merchant ID, Site ID, Secret Key – secret key used only locally).
@@ -132,7 +148,18 @@ README.md
 | Ctrl + Enter | Generate cashier URL & checksum |
 
 ## Changelog
-### 1.1.0 (Unreleased / Working)
+### 1.2.0 (Latest)
+- **NEW: Smart Auto-Resizing Textareas** - All textareas now automatically adjust height based on content
+  - Height-only expansion (width remains fixed at 100%)
+  - No manual resize allowed - purely automatic behavior
+  - Unlimited vertical growth for long URLs and multi-line content
+  - Real-time adjustment on typing, pasting, and programmatic content changes
+  - Applied to all textareas including URL fields and payment methods
+  - Works with dynamically added textareas and form data loading
+- Enhanced UI consistency with disabled resize controls and proper overflow handling
+- Improved user experience for entering long webhook URLs and payment method lists
+
+### 1.1.0 (Previous)
 - Added collapsible items & sections with arrow buttons and consistent styling.
 - Added compact mode toggle for denser layout.
 - Implemented optional Open Amount min/max mapping.
@@ -158,6 +185,14 @@ README.md
 - Export/import JSON configuration.
 - Animation transitions for collapses (height auto → smooth).
 - Custom modal for auto‑save enable (instead of native confirm) if desired.
+- Textarea content validation (URL format checking for URL fields).
+- Drag-and-drop item reordering.
+
+## Recent Improvements ✅
+- ✅ Smart auto-resizing textareas (v1.2.0)
+- ✅ Height-only expansion with no manual resize
+- ✅ Real-time content-based adjustment
+- ✅ Comprehensive textarea styling and behavior
 
 ## Disclaimer
 This tool is educational and for sandbox experimentation. Always implement secure server‑side signing & validation in production. Nuvei’s official documentation is authoritative—adapt this tool if specification updates diverge.
