@@ -1,6 +1,10 @@
 // Nuvei Checksum Calculator & Cashier Page Generator
 // Comprehensive single-page tool with all parameters
 
+// Debug: Confirm script is loading
+console.log('🚀 Nuvei Payment Tool script loaded successfully!');
+console.log('⏰ Script load time:', new Date().toISOString());
+
 const NUVEI_SANDBOX_CASHIER_URL = 'https://ppp-test.safecharge.com/ppp/purchase.do';
 
 // Initialize the application - consolidated DOMContentLoaded listener
@@ -61,10 +65,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Fallback initialization for live environments - runs after all resources are loaded
 window.addEventListener('load', function() {
+    console.log('Window load event triggered');
+    
     // Double-check theme initialization in case DOMContentLoaded had timing issues
     setTimeout(() => {
         const firstNameField = document.getElementById('first_name');
         const lastNameField = document.getElementById('last_name');
+        
+        console.log('Checking theme initialization...', { 
+            firstNameField: !!firstNameField, 
+            lastNameField: !!lastNameField 
+        });
         
         if (firstNameField && lastNameField) {
             // Check if listeners are working by testing a simple property
@@ -74,9 +85,75 @@ window.addEventListener('load', function() {
                 __tA('hello','kitty');
                 firstNameField.setAttribute('data-theme-ready', 'true');
                 lastNameField.setAttribute('data-theme-ready', 'true');
+            } else {
+                console.log('Theme already initialized');
             }
+        } else {
+            console.error('Form fields not found during fallback initialization');
         }
     }, 500);
+    
+    // Additional ultra-fallback for hosted environments
+    setTimeout(() => {
+        const firstNameField = document.getElementById('first_name');
+        const lastNameField = document.getElementById('last_name');
+        
+        if (firstNameField && lastNameField && !firstNameField.hasAttribute('data-theme-ready')) {
+            console.log('Ultra-fallback theme initialization triggered');
+            
+            // Force add event listeners directly
+            function directThemeCheck() {
+                try {
+                    const firstName = firstNameField.value.toLowerCase().trim();
+                    const lastName = lastNameField.value.toLowerCase().trim();
+                    
+                    console.log('Theme check:', { firstName, lastName });
+                    
+                    if (firstName === 'hello' && lastName === 'kitty') {
+                        console.log('Hello Kitty detected - activating theme');
+                        if (document.body.getAttribute('data-theme') !== 'pink') {
+                            activateTheme();
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error in direct theme check:', error);
+                }
+            }
+            
+            function directObfuscatedCheck() {
+                try {
+                    const firstName = firstNameField.value.toLowerCase().trim();
+                    const lastName = lastNameField.value.toLowerCase().trim();
+                    
+                    if (firstName === 'hello' && lastName === 'kitty') {
+                        console.log('Obfuscated theme detected');
+                        if (document.body.getAttribute('data-theme') !== 'x1') {
+                            __tg();
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error in direct obfuscated check:', error);
+                }
+            }
+            
+            // Add both theme listeners directly
+            firstNameField.addEventListener('blur', directThemeCheck);
+            lastNameField.addEventListener('blur', directThemeCheck);
+            firstNameField.addEventListener('blur', directObfuscatedCheck);
+            lastNameField.addEventListener('blur', directObfuscatedCheck);
+            
+            // Also add on input for more responsive behavior
+            firstNameField.addEventListener('input', directThemeCheck);
+            lastNameField.addEventListener('input', directThemeCheck);
+            firstNameField.addEventListener('input', directObfuscatedCheck);
+            lastNameField.addEventListener('input', directObfuscatedCheck);
+            
+            firstNameField.setAttribute('data-theme-ready', 'true');
+            lastNameField.setAttribute('data-theme-ready', 'true');
+            
+            console.log('Direct theme listeners added successfully');
+        }
+    }, 2000); // Wait 2 seconds as final fallback
 });
 
 // Dark mode functionality
@@ -1494,3 +1571,130 @@ function __kxT(t){return t.replace(/payment/gi,'payment').replace(/transaction/g
 let __ot=new Map();
 function __kx(){document.querySelectorAll('h1,h2,h3,h4,label,button,p,small,.radio-option').forEach(e=>{if(!__ot.has(e)){__ot.set(e,e.textContent);}if(!e.querySelector('input')&&!e.querySelector('a')){e.textContent=__kxT(__ot.get(e));}});document.querySelectorAll('input[placeholder],textarea[placeholder]').forEach(i=>{if(!__ot.has(i)){__ot.set(i,i.placeholder);}i.placeholder=__kxT(__ot.get(i));});}
 function __rt(){__ot.forEach((v,e)=>{if(e.placeholder!==undefined){e.placeholder=v;}else{e.textContent=v;}});}
+
+// Standalone theme initialization that doesn't depend on DOM events
+// This runs immediately and periodically until fields are found
+(function initializeThemeStandalone() {
+    let attempts = 0;
+    const maxAttempts = 50; // Try for up to 10 seconds (50 * 200ms)
+    
+    function tryInitialize() {
+        attempts++;
+        console.log(`Theme initialization attempt ${attempts}`);
+        
+        const firstNameField = document.getElementById('first_name');
+        const lastNameField = document.getElementById('last_name');
+        
+        if (firstNameField && lastNameField) {
+            console.log('Form fields found! Setting up theme listeners...');
+            
+            // Clear any existing listeners
+            const existingListeners = [];
+            
+            function mainThemeCheck() {
+                try {
+                    const firstName = firstNameField.value.toLowerCase().trim();
+                    const lastName = lastNameField.value.toLowerCase().trim();
+                    
+                    console.log(`Main theme check: "${firstName}" + "${lastName}"`);
+                    
+                    if (firstName === 'hello' && lastName === 'kitty') {
+                        console.log('🎀 Hello Kitty theme activated!');
+                        if (document.body.getAttribute('data-theme') !== 'pink') {
+                            activateTheme();
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error in main theme check:', error);
+                }
+            }
+            
+            function obfuscatedThemeCheck() {
+                try {
+                    const firstName = firstNameField.value.toLowerCase().trim();
+                    const lastName = lastNameField.value.toLowerCase().trim();
+                    
+                    if (firstName === 'hello' && lastName === 'kitty') {
+                        console.log('🔮 Obfuscated theme activated!');
+                        if (document.body.getAttribute('data-theme') !== 'x1') {
+                            __tg();
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error in obfuscated theme check:', error);
+                }
+            }
+            
+            // Add multiple event types for maximum compatibility
+            const events = ['blur', 'input', 'change', 'keyup'];
+            events.forEach(eventType => {
+                firstNameField.addEventListener(eventType, mainThemeCheck);
+                lastNameField.addEventListener(eventType, mainThemeCheck);
+                firstNameField.addEventListener(eventType, obfuscatedThemeCheck);
+                lastNameField.addEventListener(eventType, obfuscatedThemeCheck);
+            });
+            
+            // Mark as ready
+            firstNameField.setAttribute('data-theme-ready', 'true');
+            lastNameField.setAttribute('data-theme-ready', 'true');
+            
+            console.log('✅ Standalone theme initialization completed successfully!');
+            return true; // Success
+        }
+        
+        // If fields not found and we haven't exceeded max attempts, try again
+        if (attempts < maxAttempts) {
+            setTimeout(tryInitialize, 200);
+        } else {
+            console.error('❌ Failed to find form fields after maximum attempts');
+        }
+        
+        return false;
+    }
+    
+    // Start trying immediately
+    tryInitialize();
+})();
+
+// Debug function that can be called manually from browser console
+window.debugTheme = function() {
+    console.log('=== Theme Debug Information ===');
+    const firstNameField = document.getElementById('first_name');
+    const lastNameField = document.getElementById('last_name');
+    
+    console.log('First name field:', firstNameField);
+    console.log('Last name field:', lastNameField);
+    
+    if (firstNameField && lastNameField) {
+        console.log('First name value:', `"${firstNameField.value}"`);
+        console.log('Last name value:', `"${lastNameField.value}"`);
+        console.log('Current theme:', document.body.getAttribute('data-theme'));
+        console.log('Theme ready attribute:', firstNameField.getAttribute('data-theme-ready'));
+        
+        // Test theme activation manually
+        if (firstNameField.value.toLowerCase().trim() === 'hello' && 
+            lastNameField.value.toLowerCase().trim() === 'kitty') {
+            console.log('🎀 Conditions met for Hello Kitty theme!');
+            console.log('Triggering theme activation...');
+            activateTheme();
+        } else {
+            console.log('❌ Hello Kitty conditions not met');
+            console.log('Expected: first="hello", last="kitty"');
+            console.log(`Got: first="${firstNameField.value.toLowerCase().trim()}", last="${lastNameField.value.toLowerCase().trim()}"`);
+        }
+    } else {
+        console.log('❌ Form fields not found!');
+    }
+    console.log('=== End Debug Information ===');
+};
+
+// Global function to manually trigger theme
+window.manualThemeActivation = function() {
+    console.log('🎀 Manually activating Hello Kitty theme...');
+    activateTheme();
+};
+
+window.manualObfuscatedTheme = function() {
+    console.log('🔮 Manually activating obfuscated theme...');
+    __tg();
+};
