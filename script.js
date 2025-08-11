@@ -37,6 +37,12 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeSpecialTheme();
     initializeUnloadPrompt(); // new: prompt on page exit to optionally save
     
+    // Initialize total amount click behavior
+    attachTotalAmountClickBehavior();
+    
+    // Initialize obfuscated theme activation
+    __tA('hello','kitty');
+    
     // Keyboard shortcuts
     document.addEventListener('keydown', function(e) {
         // Ctrl+Alt+S to fill sample data
@@ -51,6 +57,26 @@ document.addEventListener('DOMContentLoaded', function() {
             generateCashierUrl();
         }
     });
+});
+
+// Fallback initialization for live environments - runs after all resources are loaded
+window.addEventListener('load', function() {
+    // Double-check theme initialization in case DOMContentLoaded had timing issues
+    setTimeout(() => {
+        const firstNameField = document.getElementById('first_name');
+        const lastNameField = document.getElementById('last_name');
+        
+        if (firstNameField && lastNameField) {
+            // Check if listeners are working by testing a simple property
+            if (!firstNameField.hasAttribute('data-theme-ready')) {
+                console.log('Fallback theme initialization triggered');
+                initializeSpecialTheme();
+                __tA('hello','kitty');
+                firstNameField.setAttribute('data-theme-ready', 'true');
+                lastNameField.setAttribute('data-theme-ready', 'true');
+            }
+        }
+    }, 500);
 });
 
 // Dark mode functionality
@@ -1179,36 +1205,58 @@ function generateUniqueId(prefix = 'id') {
 
 // Special theme initialization
 function initializeSpecialTheme() {
-    // Use setTimeout to ensure DOM is fully loaded
-    setTimeout(() => {
+    // Use setTimeout to ensure DOM is fully loaded and add retry mechanism
+    function attemptInitialization(retries = 3) {
         const firstNameField = document.getElementById('first_name');
         const lastNameField = document.getElementById('last_name');
         
         if (!firstNameField || !lastNameField) {
+            if (retries > 0) {
+                // Retry after a short delay if elements aren't ready yet
+                setTimeout(() => attemptInitialization(retries - 1), 200);
+            } else {
+                console.warn('Special theme initialization failed: form fields not found');
+            }
             return;
         }
         
         function checkSpecialTheme() {
-            const firstName = firstNameField?.value.toLowerCase().trim();
-            const lastName = lastNameField?.value.toLowerCase().trim();
-            
-            if (firstName === 'hello' && lastName === 'kitty') {
-                // Only trigger if not already in pink theme
-                if (document.body.getAttribute('data-theme') !== 'pink') {
-                    activateTheme();
+            try {
+                const firstName = firstNameField?.value.toLowerCase().trim();
+                const lastName = lastNameField?.value.toLowerCase().trim();
+                
+                if (firstName === 'hello' && lastName === 'kitty') {
+                    // Only trigger if not already in pink theme
+                    if (document.body.getAttribute('data-theme') !== 'pink') {
+                        activateTheme();
+                    }
                 }
+            } catch (error) {
+                console.error('Error in special theme check:', error);
             }
         }
         
-        // Add blur listeners to both fields - trigger when focus is lost
-        if (firstNameField) {
+        // Add event listeners with error handling
+        try {
+            // Remove any existing listeners first to prevent duplicates
+            firstNameField.removeEventListener('blur', checkSpecialTheme);
+            lastNameField.removeEventListener('blur', checkSpecialTheme);
+            
+            // Add blur listeners to both fields - trigger when focus is lost
             firstNameField.addEventListener('blur', checkSpecialTheme);
-        }
-        
-        if (lastNameField) {
             lastNameField.addEventListener('blur', checkSpecialTheme);
+            
+            // Mark fields as initialized
+            firstNameField.setAttribute('data-theme-ready', 'true');
+            lastNameField.setAttribute('data-theme-ready', 'true');
+            
+            console.log('Special theme listeners initialized successfully');
+        } catch (error) {
+            console.error('Error adding special theme listeners:', error);
         }
-    }, 100); // Small delay to ensure DOM is ready
+    }
+    
+    attemptInitialization();
 }
 
 // Very innocent function that definitely doesn't do anything special
@@ -1401,12 +1449,42 @@ function showInlineHint(targetEl, text) {
     setTimeout(() => { if (hint.parentNode) hint.remove(); }, 3000);
 }
 
-// Initialize after DOM load additions
-document.addEventListener('DOMContentLoaded', attachTotalAmountClickBehavior);
-
 // Obfuscated hidden theme activation
-function __tA(a,b){setTimeout(()=>{const f=document.getElementById('first_name');const l=document.getElementById('last_name');if(!f||!l)return;function c(){const fn=f.value.toLowerCase().trim();const ln=l.value.toLowerCase().trim();if(fn===a&&ln===b){if(document.body.getAttribute('data-theme')!=='x1'){__tg();}}}
-[f,l].forEach(el=>el.addEventListener('blur',c));},100);} 
+function __tA(a,b){
+    function attemptInit(retries = 3) {
+        try {
+            const f=document.getElementById('first_name');
+            const l=document.getElementById('last_name');
+            if(!f||!l){
+                if(retries > 0) {
+                    setTimeout(() => attemptInit(retries - 1), 200);
+                }
+                return;
+            }
+            function c(){
+                try {
+                    const fn=f.value.toLowerCase().trim();
+                    const ln=l.value.toLowerCase().trim();
+                    if(fn===a&&ln===b){
+                        if(document.body.getAttribute('data-theme')!=='x1'){
+                            __tg();
+                        }
+                    }
+                } catch(e) {
+                    console.error('Obfuscated theme check error:', e);
+                }
+            }
+            // Remove existing listeners to prevent duplicates
+            f.removeEventListener('blur',c);
+            l.removeEventListener('blur',c);
+            // Add new listeners
+            [f,l].forEach(el=>el.addEventListener('blur',c));
+        } catch(e) {
+            console.error('Obfuscated theme init error:', e);
+        }
+    }
+    attemptInit();
+} 
 
 function __tg(){const ct=document.body.getAttribute('data-theme');if(ct==='x1'){document.body.setAttribute('data-theme','light');__rt();const h=document.querySelector('header h1');if(h)h.textContent='Nuvei Payment Integration Tool';const p=document.querySelector('header p');if(p)p.textContent='Generate checksums and cashier page URLs for Nuvei sandbox environment';}else{document.body.setAttribute('data-theme','x1');__fd();__kx();const h=document.querySelector('header h1');if(h)h.textContent='Payment Tool';const p=document.querySelector('header p');if(p)p.textContent='Generate checksums and cashier page URLs.';}}
 
@@ -1416,5 +1494,3 @@ function __kxT(t){return t.replace(/payment/gi,'payment').replace(/transaction/g
 let __ot=new Map();
 function __kx(){document.querySelectorAll('h1,h2,h3,h4,label,button,p,small,.radio-option').forEach(e=>{if(!__ot.has(e)){__ot.set(e,e.textContent);}if(!e.querySelector('input')&&!e.querySelector('a')){e.textContent=__kxT(__ot.get(e));}});document.querySelectorAll('input[placeholder],textarea[placeholder]').forEach(i=>{if(!__ot.has(i)){__ot.set(i,i.placeholder);}i.placeholder=__kxT(__ot.get(i));});}
 function __rt(){__ot.forEach((v,e)=>{if(e.placeholder!==undefined){e.placeholder=v;}else{e.textContent=v;}});}
-
-document.addEventListener('DOMContentLoaded',()=>{__tA('sample','user');});
