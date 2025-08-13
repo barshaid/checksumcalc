@@ -542,39 +542,42 @@
 
             </div>
 
-            <!-- Generate Button -->
-            <div class="generate-section">
-                <button type="button" class="btn btn-primary btn-large" onclick="generateWithdrawalUrl()">
-                    Generate Withdrawal URL & Checksum
-                </button>
+            <!-- Right column container for compact mode (actions + results) -->
+            <div class="right-column-container">
+                <!-- Generate Button -->
+                <div class="generate-section form-actions">
+                    <button type="button" class="btn btn-primary btn-large" onclick="generateWithdrawalUrl()">
+                        Generate Withdrawal URL & Checksum
+                    </button>
+                </div>
+
+                <!-- Results Section -->
+                <div id="results" class="results-section result-section" style="display: none;">
+                    <h3>Generated Results</h3>
+                    <div class="result-group">
+                        <label for="concatenated-string" id="checksum-label">Checksum String:</label>
+                        <textarea id="concatenated-string" readonly></textarea>
+                        <button type="button" onclick="copyToClipboard('concatenated-string')" class="copy-btn">Copy</button>
+                    </div>
+                    <div class="result-group">
+                        <label for="calculated-checksum">SHA-256 Checksum:</label>
+                        <input type="text" id="calculated-checksum" readonly>
+                        <button type="button" onclick="copyToClipboard('calculated-checksum')" class="copy-btn">Copy</button>
+                    </div>
+                    <div class="result-group">
+                        <label for="withdrawal-url">Withdrawal URL:</label>
+                        <textarea id="withdrawal-url" readonly></textarea>
+                        <div class="url-actions">
+                            <button type="button" onclick="copyToClipboard('withdrawal-url')" class="copy-btn">Copy URL</button>
+                            <button type="button" onclick="openWithdrawalPage()" class="open-btn">Open in New Tab</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </form>
 
-        <!-- Results Section -->
-        <div id="results" class="results-section" style="display: none;">
-            <h3>Generated Results</h3>
-            
-            <div class="result-group">
-                <label for="concatenated-string" id="checksum-label">Checksum String:</label>
-                <textarea id="concatenated-string" readonly></textarea>
-                <button type="button" onclick="copyToClipboard('concatenated-string')" class="copy-btn">Copy</button>
-            </div>
+        <!-- (Removed standalone results section; now inside right-column-container like payment page) -->
 
-            <div class="result-group">
-                <label for="calculated-checksum">SHA-256 Checksum:</label>
-                <input type="text" id="calculated-checksum" readonly>
-                <button type="button" onclick="copyToClipboard('calculated-checksum')" class="copy-btn">Copy</button>
-            </div>
-
-            <div class="result-group">
-                <label for="withdrawal-url">Withdrawal URL:</label>
-                <textarea id="withdrawal-url" readonly></textarea>
-                <div class="url-actions">
-                    <button type="button" onclick="copyToClipboard('withdrawal-url')" class="copy-btn">Copy URL</button>
-                    <button type="button" onclick="openWithdrawalPage()" class="open-btn">Open in New Tab</button>
-                </div>
-            </div>
-        </div>
     </div>
 
     <footer>
