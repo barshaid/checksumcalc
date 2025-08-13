@@ -106,8 +106,57 @@ header {
     position: absolute;
     top: 1rem;
     right: 1rem;
+    left: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 2;
+}
+
+.view-controls {
     display: flex;
     gap: 0.5rem;
+}
+
+.page-navigation {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    margin-right: 1rem;
+}
+
+.nav-button {
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background-color: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    font-size: 0.75rem;
+    white-space: nowrap;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.2rem;
+    min-width: 180px;
+    text-align: center;
+}
+
+.nav-button:hover {
+    color: white;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: translateY(-1px);
+}
+
+.nav-button small {
+    font-size: 0.65rem;
+    opacity: 0.8;
+    font-weight: 400;
 }
 
 .view-controls button {
@@ -242,6 +291,253 @@ header p {
 .auto-save-toggle input[type="checkbox"] {
     margin: 0;
     transform: scale(1.2);
+}
+
+/* Test Scenarios Section */
+.test-scenarios-section {
+    margin: 1rem 0;
+    background-color: var(--bg-section);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.test-scenarios-section .collapsible-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    background: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-hover) 100%);
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.test-scenarios-section .collapsible-header:hover {
+    background: linear-gradient(135deg, var(--accent-hover) 0%, var(--accent-color) 100%);
+    transform: translateY(-1px);
+}
+
+.test-scenarios-section .collapsible-header h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.test-scenarios-section .toggle-icon {
+    font-size: 0.875rem;
+    transition: transform 0.3s ease;
+}
+
+.test-scenarios-section .collapsible-body {
+    padding: 1rem;
+    background-color: var(--bg-section);
+}
+
+.section-note {
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    background-color: var(--result-bg);
+    border-radius: 6px;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    line-height: 1.4;
+}
+
+.test-scenarios-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.test-category {
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.875rem;
+    transition: all 0.3s ease;
+}
+
+.test-category:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px -2px var(--shadow);
+    border-color: var(--accent-color);
+}
+
+.test-category h4 {
+    margin: 0 0 0.75rem 0;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-heading);
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.test-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.test-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0.625rem 0.75rem;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+    width: 100%;
+    min-height: 48px;
+    justify-content: center;
+}
+
+.test-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px -1px var(--shadow);
+}
+
+.test-btn strong {
+    font-weight: 600;
+    margin-bottom: 0.125rem;
+}
+
+.test-btn small {
+    font-size: 0.7rem;
+    opacity: 0.75;
+    font-family: 'Courier New', monospace;
+}
+
+.test-btn.test-success {
+    border-color: var(--success-color);
+    background: linear-gradient(135deg, #f0fff4 0%, #c6f6d5 100%);
+}
+
+[data-theme="dark"] .test-btn.test-success {
+    background: linear-gradient(135deg, #1a3d2e 0%, #2d5a3d 100%);
+    color: #68d391;
+    border-color: #68d391;
+}
+
+.test-btn.test-success:hover {
+    background: linear-gradient(135deg, #c6f6d5 0%, var(--success-color) 100%);
+    color: white;
+    border-color: var(--success-color);
+    box-shadow: 0 2px 8px -1px rgba(72, 187, 120, 0.4);
+}
+
+.test-btn.test-error {
+    border-color: var(--error-color);
+    background: linear-gradient(135deg, #fff5f5 0%, #fed7d7 100%);
+}
+
+[data-theme="dark"] .test-btn.test-error {
+    background: linear-gradient(135deg, #3d1a1a 0%, #5a2d2d 100%);
+    color: #fc8181;
+    border-color: #fc8181;
+}
+
+.test-btn.test-error:hover {
+    background: linear-gradient(135deg, #fed7d7 0%, var(--error-color) 100%);
+    color: white;
+    border-color: var(--error-color);
+    box-shadow: 0 2px 8px -1px rgba(245, 101, 101, 0.4);
+}
+
+.test-btn.test-info {
+    border-color: var(--accent-color);
+    background: linear-gradient(135deg, #ebf8ff 0%, #bee3f8 100%);
+}
+
+[data-theme="dark"] .test-btn.test-info {
+    background: linear-gradient(135deg, #1a2d3d 0%, #2d4a5a 100%);
+    color: #63b3ed;
+    border-color: #63b3ed;
+}
+
+.test-btn.test-info:hover {
+    background: linear-gradient(135deg, #bee3f8 0%, var(--accent-color) 100%);
+    color: white;
+    border-color: var(--accent-color);
+    box-shadow: 0 2px 8px -1px rgba(66, 153, 225, 0.4);
+}
+
+.test-btn.test-warning {
+    border-color: var(--warning-color);
+    background: linear-gradient(135deg, #fffaf0 0%, #fbd38d 100%);
+}
+
+[data-theme="dark"] .test-btn.test-warning {
+    background: linear-gradient(135deg, #3d2f1a 0%, #5a4a2d 100%);
+    color: #f6ad55;
+    border-color: #f6ad55;
+}
+
+.test-btn.test-warning:hover {
+    background: linear-gradient(135deg, #fbd38d 0%, var(--warning-color) 100%);
+    color: white;
+    border-color: var(--warning-color);
+    box-shadow: 0 2px 8px -1px rgba(237, 137, 54, 0.4);
+}
+
+.test-scenarios-note {
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 0.75rem;
+    margin-top: 0.75rem;
+}
+
+.test-scenarios-note p {
+    margin: 0;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+.test-scenarios-note strong {
+    color: var(--text-primary);
+}
+
+/* Responsive design for test scenarios */
+@media (max-width: 768px) {
+    .test-scenarios-grid {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+    
+    .test-category {
+        padding: 0.75rem;
+    }
+    
+    .test-btn {
+        padding: 0.5rem;
+        min-height: 44px;
+        font-size: 0.75rem;
+    }
+    
+    .test-scenarios-section .collapsible-header {
+        padding: 0.625rem 0.75rem;
+    }
+    
+    .test-scenarios-section .collapsible-body {
+        padding: 0.75rem;
+    }
 }
 
 /* Sections */
@@ -423,6 +719,36 @@ header p {
 .compact-mode .form-group textarea {
     padding: 6px 10px;
     font-size: 12px;
+}
+
+/* Special handling for Additional Parameters in compact mode */
+.compact-mode .additional-param {
+    gap: 10px;
+    padding: 12px;
+    margin-bottom: 10px;
+}
+
+.compact-mode .additional-param .form-group input {
+    padding: 8px 12px;
+    font-size: 13px;
+    min-width: 0; /* Override min-width constraints */
+}
+
+.compact-mode .additional-param .param-name {
+    min-width: 140px; /* Larger minimum for parameter names */
+    flex: 0 0 140px;
+}
+
+.compact-mode .additional-param .param-value {
+    min-width: 180px; /* Larger minimum for parameter values */
+    flex: 1 1 180px;
+}
+
+.compact-mode .additional-param .remove-param-btn {
+    padding: 6px 10px;
+    font-size: 12px;
+    min-height: auto;
+    flex-shrink: 0;
 }
 
 /* Responsive adjustments for compact mode */
@@ -1277,4 +1603,34 @@ footer p:last-child {
 /* Accessibility focus-visible refinement */
 .collapse-item-btn:focus-visible, .collapse-items-btn:focus-visible, .remove-item-btn:focus-visible {
     box-shadow: 0 0 0 3px rgba(66,153,225,0.5);
+}
+
+/* Modal animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }

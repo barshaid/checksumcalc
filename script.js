@@ -285,9 +285,9 @@ function generateTimestamp() {
     const minutes = String(now.getMinutes()).padStart(2, '0');
     const seconds = String(now.getSeconds()).padStart(2, '0');
     
-    // Nuvei format: YYYY-MM-DD.HH:MM:SS
-    const timestamp = `${year}-${month}-${day}.${hours}:${minutes}:${seconds}`;
-    document.getElementById('time_stamp').value = timestamp;
+    // Nuvei format: YYYYMMDDHHMMSS
+    const timestamp = `${year}${month}${day}${hours}${minutes}${seconds}`;
+    document.getElementById('timeStamp').value = timestamp;
 }
 // Items Management
 let itemCounter = 1; // Start at 1 since item_1 is mandatory
@@ -487,35 +487,74 @@ function getNextAdditionalParamNumber() {
 }
 
 function addAdditionalParameter() {
+    console.log('addAdditionalParameter called');
+    
     const paramNumber = getNextAdditionalParamNumber();
+    console.log('Next param number:', paramNumber);
+    
     const container = document.getElementById('additionalParameters');
+    console.log('Container found:', !!container);
+    
+    if (!container) {
+        console.error('additionalParameters container not found');
+        alert('Error: Additional Parameters container not found. Please check if you are on the correct page.');
+        return;
+    }
     
     const paramDiv = document.createElement('div');
     paramDiv.className = 'additional-param';
     paramDiv.id = `additional-param-${paramNumber}`;
+    paramDiv.style.cssText = `
+        display: flex;
+        gap: 10px;
+        margin-bottom: 10px;
+        align-items: end;
+        flex-wrap: wrap;
+    `;
     
     paramDiv.innerHTML = `
-        <div class="form-group param-name">
+        <div class="form-group param-name" style="flex: 1; min-width: 200px;">
             <label for="param-name-${paramNumber}">Parameter Name:</label>
             <input type="text" id="param-name-${paramNumber}" 
                    name="param-name-${paramNumber}" 
                    placeholder="customParam" 
-                   data-param-counter="${paramNumber}">
+                   data-param-counter="${paramNumber}"
+                   style="width: 100%;">
         </div>
-        <div class="form-group param-value">
+        <div class="form-group param-value" style="flex: 1; min-width: 200px;">
             <label for="param-value-${paramNumber}">Parameter Value:</label>
             <input type="text" id="param-value-${paramNumber}" 
                    name="param-value-${paramNumber}" 
                    placeholder="customValue" 
-                   data-param-counter="${paramNumber}">
+                   data-param-counter="${paramNumber}"
+                   style="width: 100%;">
         </div>
-        <button type="button" class="remove-param-btn" onclick="removeAdditionalParameter(${paramNumber})">
+        <button type="button" class="remove-param-btn" onclick="removeAdditionalParameter(${paramNumber})"
+                style="padding: 8px 12px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">
             Remove
         </button>
     `;
     
-    container.appendChild(paramDiv);
-    additionalParamCounter = Math.max(additionalParamCounter, paramNumber); // Update counter to highest number
+    try {
+        container.appendChild(paramDiv);
+        additionalParamCounter = Math.max(additionalParamCounter, paramNumber);
+        console.log('Parameter added successfully, new counter:', additionalParamCounter);
+        
+        // Focus on the first input for immediate use
+        const nameInput = document.getElementById(`param-name-${paramNumber}`);
+        if (nameInput) {
+            nameInput.focus();
+        }
+        
+        if (typeof showMessage === 'function') {
+            showMessage('Parameter added successfully', 'success');
+        } else {
+            console.log('Parameter added successfully');
+        }
+    } catch (error) {
+        console.error('Error appending parameter:', error);
+        alert('Error adding parameter: ' + error.message);
+    }
 }
 
 function removeAdditionalParameter(counter) {
@@ -720,7 +759,7 @@ function createChecksumString(data, secretKey) {
         'merchant_id', 'merchant_site_id', 'total_amount', 'currency',
         'user_token_id', 'merchant_unique_id', 'time_stamp', 'version', 'notify_url', 
         'first_name', 'last_name', 'email', 'phone1', 'country', 'state',
-        'city', 'address1', 'zip', 'dateOfBirth', 'success_url', 'error_url', 'pending_url',
+        'city', 'address1', 'zip', 'dateOfBirth', 'merchantLocale', 'success_url', 'error_url', 'pending_url',
         'payment_method', 'payment_methods', 'payment_method_mode'
     ];
     
@@ -739,7 +778,7 @@ function createChecksumString(data, secretKey) {
         ...itemFields,
         'time_stamp', 'version', 'notify_url', 
         'first_name', 'last_name', 'email', 'phone1', 'country', 'state',
-        'city', 'address1', 'zip', 'dateOfBirth', 'success_url', 'error_url', 'pending_url',
+        'city', 'address1', 'zip', 'dateOfBirth', 'merchantLocale', 'success_url', 'error_url', 'pending_url',
         'payment_method', 'payment_methods', 'payment_method_mode'
     ];
     
@@ -961,7 +1000,7 @@ async function generateCashierUrl() {
             'merchant_id', 'merchant_site_id', 'total_amount', 'currency',
             'user_token_id', 'merchant_unique_id', 'time_stamp', 'version', 'notify_url', 
             'first_name', 'last_name', 'email', 'phone1', 'country', 'state',
-            'city', 'address1', 'zip', 'dateOfBirth', 'success_url', 'error_url', 'pending_url',
+            'city', 'address1', 'zip', 'dateOfBirth', 'merchantLocale', 'success_url', 'error_url', 'pending_url',
             'payment_method', 'payment_methods', 'payment_method_mode'
         ];
         
@@ -980,7 +1019,7 @@ async function generateCashierUrl() {
             ...itemFields,
             'time_stamp', 'version', 'notify_url', 
             'first_name', 'last_name', 'email', 'phone1', 'country', 'state',
-            'city', 'address1', 'zip', 'dateOfBirth', 'success_url', 'error_url', 'pending_url',
+            'city', 'address1', 'zip', 'dateOfBirth', 'merchantLocale', 'success_url', 'error_url', 'pending_url',
             'payment_method', 'payment_methods', 'payment_method_mode'
         ];
         
@@ -1188,6 +1227,266 @@ function fillSampleData() {
     if (document.getElementById('enableLocalStorage')?.checked) {
         saveFormData();
     }
+}
+
+// Show test card information in a simple top-left window
+function showTestCardInfo(title, details) {
+    // Remove any existing test card popup
+    const existingPopup = document.getElementById('testCardPopup');
+    if (existingPopup) {
+        existingPopup.remove();
+    }
+
+    // Create popup window
+    const popup = document.createElement('div');
+    popup.id = 'testCardPopup';
+    popup.style.cssText = `
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        background: var(--bg-color, #ffffff);
+        color: var(--text-color, #333333);
+        border: 2px solid var(--border-color, #007bff);
+        border-radius: 8px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        max-width: 400px;
+        z-index: 1000;
+        font-family: Arial, sans-serif;
+        animation: slideIn 0.3s ease-out;
+    `;
+
+    popup.innerHTML = `
+        <div style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background: var(--primary-color, #007bff);
+            color: white;
+            border-radius: 6px 6px 0 0;
+            font-weight: 600;
+        ">
+            <span>${title}</span>
+            <button onclick="closeTestCardInfo()" style="
+                background: none;
+                border: none;
+                color: white;
+                font-size: 18px;
+                cursor: pointer;
+                padding: 0;
+                width: 24px;
+                height: 24px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 3px;
+            " onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='none'" title="Close">
+                ×
+            </button>
+        </div>
+        <div style="padding: 16px;">
+            <div style="
+                background: var(--code-bg, #f8f9fa);
+                border: 1px solid var(--border-color, #e0e0e0);
+                border-radius: 6px;
+                padding: 12px;
+                font-family: 'Courier New', monospace;
+                font-size: 13px;
+                line-height: 1.5;
+                white-space: pre-line;
+                user-select: all;
+            ">${details}</div>
+        </div>
+    `;
+
+    document.body.appendChild(popup);
+}
+
+// Close test card info popup
+function closeTestCardInfo() {
+    const popup = document.getElementById('testCardPopup');
+    if (popup) {
+        popup.style.animation = 'fadeOut 0.3s ease-in';
+        setTimeout(() => {
+            if (popup.parentNode) {
+                popup.remove();
+            }
+        }, 300);
+    }
+}
+
+// Test scenario prefill functions
+function fillTestScenario(scenario) {
+    // Clear any existing errors first
+    clearFieldErrors();
+    
+    switch (scenario) {
+        case 'approved-visa':
+            fillBasicTestData();
+            document.getElementById('first_name').value = 'John';
+            document.getElementById('last_name').value = 'Doe';
+            document.getElementById('email').value = 'john.doe@test.com';
+            document.getElementById('item_name_1').value = 'Test Purchase - Approved Visa';
+            document.getElementById('item_amount_1').value = '25.00';
+            
+            showTestCardInfo('✅ Approved Visa Test Card', 'Card Number: 4761344136141390\nCVV: 123\nExpiry: 12/2030\n\nThis card will be approved for payments.');
+            showMessage('✅ Approved Visa test scenario loaded', 'success');
+            break;
+            
+        case 'declined-visa':
+            fillBasicTestData();
+            document.getElementById('first_name').value = 'Jane';
+            document.getElementById('last_name').value = 'Smith';
+            document.getElementById('email').value = 'jane.smith@test.com';
+            document.getElementById('item_name_1').value = 'Test Purchase - Declined Visa';
+            document.getElementById('item_amount_1').value = '15.00';
+            
+            showTestCardInfo('❌ Declined Visa Test Card', 'Card Number: 4008370896662369\nCVV: 123\nExpiry: 12/2030\n\nThis card will be declined for payments.');
+            showMessage('❌ Declined Visa test scenario loaded', 'warning');
+            break;
+            
+        case 'approved-mastercard':
+            fillBasicTestData();
+            document.getElementById('first_name').value = 'Mike';
+            document.getElementById('last_name').value = 'Johnson';
+            document.getElementById('email').value = 'mike.johnson@test.com';
+            document.getElementById('item_name_1').value = 'Test Purchase - Approved MC';
+            document.getElementById('item_amount_1').value = '50.00';
+            
+            showTestCardInfo('✅ Approved Mastercard Test Card', 'Card Number: 5101081046006034\nCVV: 456\nExpiry: 12/2030\n\nThis card will be approved for payments.');
+            showMessage('✅ Approved Mastercard test scenario loaded', 'success');
+            break;
+            
+        case '3ds-frictionless':
+            fillBasicTestData();
+            document.getElementById('first_name').value = 'FL-BRW1';
+            document.getElementById('last_name').value = '';
+            document.getElementById('email').value = 'frictionless@test.com';
+            document.getElementById('item_name_1').value = '3DS Frictionless Test';
+            document.getElementById('item_amount_1').value = '83.10';
+            
+            showTestCardInfo('🔒 3DS Frictionless Test Card', 'Card Number: 4000020951595032\nCVV: 123\nExpiry: 12/2030\n\nSpecial Instructions:\n• Use first name "FL-BRW1" to trigger frictionless flow\n• This will complete 3DS authentication without challenge');
+            showMessage('🔒 3DS Frictionless test scenario loaded', 'info');
+            break;
+            
+        case '3ds-challenge':
+            fillBasicTestData();
+            document.getElementById('first_name').value = 'CL-BRW1';
+            document.getElementById('last_name').value = '';
+            document.getElementById('email').value = 'challenge@test.com';
+            document.getElementById('item_name_1').value = '3DS Challenge Test';
+            document.getElementById('item_amount_1').value = '115.20';
+            
+            showTestCardInfo('🛡️ 3DS Challenge Test Card', 'Card Number: 2221008123677736\nCVV: 789\nExpiry: 12/2030\n\nSpecial Instructions:\n• Use first name "CL-BRW1" to trigger challenge flow\n• This will require 3DS authentication challenge');
+            showMessage('🛡️ 3DS Challenge test scenario loaded', 'info');
+            break;
+            
+        case 'amex-approved':
+            fillBasicTestData();
+            document.getElementById('first_name').value = 'Alice';
+            document.getElementById('last_name').value = 'Williams';
+            document.getElementById('email').value = 'alice.williams@test.com';
+            document.getElementById('item_name_1').value = 'Test Purchase - Amex';
+            document.getElementById('item_amount_1').value = '75.00';
+            
+            showTestCardInfo('✅ Approved Amex Test Card', 'Card Number: 375510513169537\nCVV: 1234\nExpiry: 12/2030\n\nThis American Express card will be approved for payments.');
+            showMessage('✅ Approved Amex test scenario loaded', 'success');
+            break;
+            
+        case 'insufficient-funds':
+            fillBasicTestData();
+            document.getElementById('first_name').value = 'Bob';
+            document.getElementById('last_name').value = 'Poor';
+            document.getElementById('email').value = 'insufficient@test.com';
+            document.getElementById('item_name_1').value = 'Test - Insufficient Funds';
+            document.getElementById('item_amount_1').value = '999.99';
+            
+            showTestCardInfo('💳 Insufficient Funds Test Card', 'Card Number: 4000173946194872\nCVV: 123\nExpiry: 12/2030\n\nThis card will be declined due to insufficient funds.');
+            showMessage('💳 Insufficient funds test scenario loaded', 'warning');
+            break;
+            
+        case 'expired-card':
+            fillBasicTestData();
+            document.getElementById('first_name').value = 'Charlie';
+            document.getElementById('last_name').value = 'Expired';
+            document.getElementById('email').value = 'expired@test.com';
+            document.getElementById('item_name_1').value = 'Test - Expired Card';
+            document.getElementById('item_amount_1').value = '30.00';
+            
+            showTestCardInfo('📅 Expired Card Test Card', 'Card Number: 4000247422310226\nCVV: 123\nExpiry: 12/2020\n\nThis card will be declined due to expiration.');
+            showMessage('📅 Expired card test scenario loaded', 'warning');
+            break;
+            
+        case 'paypal-test':
+            fillBasicTestData();
+            document.getElementById('first_name').value = 'PayPal';
+            document.getElementById('last_name').value = 'User';
+            document.getElementById('email').value = 'paypal@test.com';
+            document.getElementById('item_name_1').value = 'PayPal Test Purchase';
+            document.getElementById('item_amount_1').value = '40.00';
+            
+            // Set payment method to PayPal
+            document.querySelector('input[name="paymentMethodOption"][value="preselect"]').checked = true;
+            togglePaymentMethodFields();
+            document.getElementById('payment_method').value = 'apmgw_PayPal';
+            
+            showTestCardInfo('💰 PayPal Test Credentials', 'Test Email: SCTest1@gmail.com\nTest Password: 1q2w3e$R\n\nUse these credentials in the PayPal sandbox environment.\nPayment method has been automatically set to PayPal.');
+            // showMessage('� PayPal test scenario loaded\n📧 Test Email: SCTest1@gmail.com | Password: 1q2w3e$R\nℹ️ PayPal sandbox test credentials', 'info');
+            showMessage('💰 PayPal test scenario loaded', 'info');
+            break;
+            
+            showMessage('� PayPal test scenario loaded\n📧 Test Email: SCTest1@gmail.com | Password: 1q2w3e$R\nℹ️ PayPal sandbox test credentials', 'info');
+            break;
+            
+        case 'high-amount':
+            fillBasicTestData();
+            document.getElementById('first_name').value = 'Big';
+            document.getElementById('last_name').value = 'Spender';
+            document.getElementById('email').value = 'bigspender@test.com';
+            document.getElementById('item_name_1').value = 'High Value Purchase';
+            document.getElementById('item_amount_1').value = '5000.00';
+            
+            showTestCardInfo('💎 High Amount Test Card', 'Card Number: 4761344136141390\nCVV: 123\nExpiry: 12/2030\n\nUse this approved test card for high value testing.');
+            showMessage('💎 High amount test scenario loaded', 'success');
+            break;
+    }
+    
+    generateTimestamp();
+    calculateTotal();
+    
+    // Trigger auto-resize for textareas
+    setTimeout(() => {
+        document.querySelectorAll('textarea').forEach(textarea => {
+            const event = new Event('input', { bubbles: true });
+            textarea.dispatchEvent(event);
+        });
+    }, 100);
+}
+
+// Helper function for test scenarios
+function fillBasicTestData() {
+    // Basic merchant data (user still needs to fill their own credentials)
+    document.getElementById('currency').value = 'USD';
+    document.getElementById('merchant_unique_id').value = generateUniqueId('test');
+    document.getElementById('user_token_id').value = 'testuser_12345';
+    document.getElementById('item_quantity_1').value = '1';
+    
+    // Basic customer data
+    document.getElementById('country').value = 'US';
+    document.getElementById('address1').value = '123 Test Street';
+    document.getElementById('city').value = 'Test City';
+    document.getElementById('state').value = 'NY';
+    document.getElementById('zip').value = '10001';
+    document.getElementById('phone1').value = '+15551234567';
+    
+    // Clear any existing additional parameters or custom fields for fresh test
+    const additionalParamsContainer = document.getElementById('additionalParameters');
+    additionalParamsContainer.innerHTML = '';
+    additionalParamCounter = 0;
+    
+    const customFieldsContainer = document.getElementById('customFields');
+    customFieldsContainer.innerHTML = '';
+    customFieldCounter = 0;
 }
 
 // Show message to user
@@ -1555,6 +1854,16 @@ function toggleItemsSection(btn) {
     container.style.display = isHidden ? '' : 'none';
     btn.textContent = isHidden ? '▼' : '▶';
     btn.setAttribute('aria-expanded', isHidden ? 'true' : 'false');
+}
+
+function toggleSection(sectionId) {
+    const body = document.getElementById(sectionId + 'Body');
+    const icon = document.getElementById(sectionId + 'Icon');
+    if (!body || !icon) return;
+    
+    const isHidden = body.style.display === 'none';
+    body.style.display = isHidden ? '' : 'none';
+    icon.textContent = isHidden ? '▲' : '▼';
 }
 
 function attachTotalAmountClickBehavior() {

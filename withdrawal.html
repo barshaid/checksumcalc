@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nuvei Checksum Calculator & Cashier Page Generator</title>
+    <title>Nuvei Withdrawal Checksum Calculator & URL Generator</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -15,13 +15,13 @@
                     <button type="button" id="toggleDarkMode" onclick="toggleDarkMode()" title="Toggle Dark Mode">🌙</button>
                 </div>
                 <div class="page-navigation">
-                    <a href="withdrawal.html" class="nav-button">
-                        💸 Go to Withdrawal Page Generator
+                    <a href="index.html" class="nav-button">
+                        💳 Go to Payment Page Generator
                     </a>
                 </div>
             </div>
-            <h1>Nuvei Payment Integration Tool</h1>
-            <p>Generate checksums and cashier page URLs for Nuvei sandbox environment</p>
+            <h1>Nuvei Withdrawal Integration Tool</h1>
+            <p>Generate checksums and withdrawal URLs for Nuvei sandbox environment</p>
         </header>
 
         <!-- Quick Actions -->
@@ -37,89 +37,59 @@
         <!-- Test Scenarios Section -->
         <div class="test-scenarios-section">
             <div class="collapsible-header" onclick="toggleSection('testScenarios')">
-                <h3>💳 Payment Test Scenarios</h3>
+                <h3>💰 Withdrawal Test Scenarios</h3>
                 <span class="toggle-icon" id="testScenariosIcon">▼</span>
             </div>
             <div class="collapsible-body" id="testScenariosBody" style="display: none;">
-                <p class="section-note">Pre-configured payment test scenarios for common payment flows and amounts.</p>
+                <p class="section-note">Pre-configured withdrawal test scenarios for common withdrawal flows and amounts.</p>
                 
                 <div class="test-scenarios-grid">
-                    <!-- Approved Scenarios -->
+                    <!-- Standard Withdrawal Scenarios -->
                     <div class="test-category">
-                        <h4>✅ Approved Transactions</h4>
+                        <h4>💸 Standard Withdrawals</h4>
                         <div class="test-buttons">
-                            <button type="button" onclick="fillTestScenario('approved-visa')" class="test-btn test-success">
-                                <strong>Visa Approved</strong>
-                                <small>4761344136141390</small>
+                            <button type="button" onclick="fillTestScenario('small-withdrawal')" class="test-btn test-success">
+                                <strong>Small Withdrawal</strong>
+                                <small>$25.00</small>
                             </button>
-                            <button type="button" onclick="fillTestScenario('approved-mastercard')" class="test-btn test-success">
-                                <strong>MC Approved</strong>
-                                <small>5101081046006034</small>
+                            <button type="button" onclick="fillTestScenario('medium-withdrawal')" class="test-btn test-success">
+                                <strong>Medium Withdrawal</strong>
+                                <small>$250.00</small>
                             </button>
-                            <button type="button" onclick="fillTestScenario('amex-approved')" class="test-btn test-success">
-                                <strong>Amex Approved</strong>
-                                <small>375510513169537</small>
+                            <button type="button" onclick="fillTestScenario('large-withdrawal')" class="test-btn test-warning">
+                                <strong>Large Withdrawal</strong>
+                                <small>$2,500.00</small>
                             </button>
                         </div>
                     </div>
                     
-                    <!-- Declined Scenarios -->
-                    <div class="test-category">
-                        <h4>❌ Declined Transactions</h4>
-                        <div class="test-buttons">
-                            <button type="button" onclick="fillTestScenario('declined-visa')" class="test-btn test-error">
-                                <strong>Visa Declined</strong>
-                                <small>4008370896662369</small>
-                            </button>
-                            <button type="button" onclick="fillTestScenario('insufficient-funds')" class="test-btn test-error">
-                                <strong>Insufficient Funds</strong>
-                                <small>4000173946194872</small>
-                            </button>
-                            <button type="button" onclick="fillTestScenario('expired-card')" class="test-btn test-error">
-                                <strong>Expired Card</strong>
-                                <small>4000247422310226</small>
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <!-- 3DS Scenarios -->
-                    <div class="test-category">
-                        <h4>🔒 3DS Testing</h4>
-                        <div class="test-buttons">
-                            <button type="button" onclick="fillTestScenario('3ds-frictionless')" class="test-btn test-info">
-                                <strong>3DS Frictionless</strong>
-                                <small>FL-BRW1</small>
-                            </button>
-                            <button type="button" onclick="fillTestScenario('3ds-challenge')" class="test-btn test-info">
-                                <strong>3DS Challenge</strong>
-                                <small>CL-BRW1</small>
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <!-- Special Scenarios -->
+                    <!-- Special Withdrawal Types -->
                     <div class="test-category">
                         <h4>🎯 Special Cases</h4>
                         <div class="test-buttons">
-                            <button type="button" onclick="fillTestScenario('paypal-test')" class="test-btn test-warning">
-                                <strong>PayPal Test</strong>
-                                <small>APM Testing</small>
+                            <button type="button" onclick="fillTestScenario('fixed-amount')" class="test-btn test-info">
+                                <strong>Fixed Amount</strong>
+                                <small>No user input</small>
                             </button>
-                            <button type="button" onclick="fillTestScenario('high-amount')" class="test-btn test-info">
-                                <strong>High Amount</strong>
-                                <small>$5,000.00</small>
+                            <button type="button" onclick="fillTestScenario('open-amount')" class="test-btn test-info">
+                                <strong>Open Amount</strong>
+                                <small>Range: $10-$1000</small>
+                            </button>
+                            <button type="button" onclick="fillTestScenario('euro-withdrawal')" class="test-btn test-success">
+                                <strong>Euro Withdrawal</strong>
+                                <small>€100.00</small>
                             </button>
                         </div>
                     </div>
                 </div>
                 
                 <div class="test-scenarios-note">
-                    <p><strong>Note:</strong> Test scenarios include official Nuvei test card numbers and credentials. You still need to provide your merchant credentials (ID, Site ID, Secret Key).</p>
+                    <p><strong>Note:</strong> Withdrawal scenarios include different amount ranges and currencies. You still need to provide your merchant credentials (ID, Site ID, Secret Key).</p>
                 </div>
             </div>
         </div>
 
-        <form id="payment-form">
+        <form id="withdrawal-form">
             <!-- Hidden Version Field -->
             <input type="hidden" id="version" name="version" value="4.0.0">
             
@@ -151,9 +121,9 @@
                 </div>
             </div>
 
-            <!-- Transaction Details Section -->
+            <!-- Withdrawal Details Section -->
             <div class="section">
-                <h3>Transaction Details</h3>
+                <h3>Withdrawal Details</h3>
                 
                 <!-- User Token and Client ID -->
                 <div class="form-row">
@@ -162,127 +132,56 @@
                         <input type="text" id="user_token_id" name="user_token_id" placeholder="user_12345" required>
                     </div>
                     <div class="form-group">
-                        <label for="merchant_unique_id">Client Unique ID:</label>
-                        <input type="text" id="merchant_unique_id" name="merchant_unique_id" placeholder="order_12345">
+                        <label for="merchant_unique_id">Merchant Unique ID:</label>
+                        <input type="text" id="merchant_unique_id" name="merchant_unique_id" placeholder="wd_order_12345">
                     </div>
                 </div>
-                
-                <!-- Items Section -->
-                <div class="items-section">
-                    <div class="section-header">
-                        <button type="button" class="collapse-items-btn" onclick="toggleItemsSection(this)" aria-expanded="false" style="margin-right:8px;">▶</button>
-                        <h4 style="display:inline-block; margin:0;">Items</h4>
-                        <button type="button" class="btn btn-primary btn-sm" onclick="addItem()" style="margin-left:auto;">Add Item</button>
-                    </div>
-                    
-                    <div id="itemsContainer" style="display:none;">
-                        <!-- Item 1 (mandatory - cannot be removed) -->
-                        <div class="item-row" id="item-1" data-item-number="1">
-                            <div class="item-header">
-                                <button type="button" class="collapse-item-btn" onclick="toggleItemCollapse(1, this)" aria-expanded="false">▶</button>
-                                <span class="item-label">Item 1 (Required)</span>
-                            </div>
-                            <div class="item-body" style="display:none;">
-                                <div class="form-row four-columns">
-                                    <div class="form-group">
-                                        <label for="item_name_1">Item Name:</label>
-                                        <input type="text" id="item_name_1" name="item_name_1" placeholder="Product Name" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="item_amount_1">Item Amount:</label>
-                                        <input type="text" id="item_amount_1" name="item_amount_1" placeholder="100.00" required onchange="calculateTotal()">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="item_quantity_1">Quantity:</label>
-                                        <input type="text" id="item_quantity_1" name="item_quantity_1" placeholder="1" value="1" required onchange="calculateTotal()">
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Item Total:</label>
-                                        <input type="text" id="item_total_1" placeholder="100.00" readonly class="auto-calculated">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Transaction Totals -->
+
+                <!-- Withdrawal Amount and Currency -->
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="total_amount">Total Amount (Auto-calculated):</label>
-                        <input type="text" id="total_amount" name="total_amount" placeholder="100.00" required readonly class="auto-calculated">
+                        <label for="wd_amount">Withdrawal Amount:</label>
+                        <input type="text" id="wd_amount" name="wd_amount" placeholder="100.00" required>
                     </div>
                     <div class="form-group">
-                        <label for="currency">Currency:</label>
-                        <input type="text" id="currency" name="currency" placeholder="USD" maxlength="3" required>
+                        <label for="wd_currency">Currency:</label>
+                        <input type="text" id="wd_currency" name="wd_currency" placeholder="USD" maxlength="3" required>
                     </div>
+                </div>
+
+                <!-- Amount Range Controls -->
+                <div class="form-group">
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="enableOpenAmount" onchange="toggleOpenAmount()">
+                        Enable Open Amount (Customer can modify amount)
+                    </label>
                 </div>
                 
-                <!-- Open Amount Section -->
-                <div class="form-row">
+                <div id="openAmountSection" style="display: none;" class="form-row">
                     <div class="form-group">
-                        <label>
-                            <input type="checkbox" id="enableOpenAmount" name="enableOpenAmount" onchange="toggleOpenAmount()">
-                            Enable Open Amount (User Input)
-                        </label>
-                    </div>
-                </div>
-                <div id="openAmountSection" class="form-row" style="display: none;">
-                    <div class="form-group">
-                        <label for="openAmountMin">Min Amount:</label>
-                        <input type="text" id="openAmountMin" name="openAmountMin" placeholder="1.00">
+                        <label for="wd_min_amount">Minimum Amount:</label>
+                        <input type="text" id="wd_min_amount" name="wd_min_amount" placeholder="10.00">
                     </div>
                     <div class="form-group">
-                        <label for="openAmountMax">Max Amount:</label>
-                        <input type="text" id="openAmountMax" name="openAmountMax" placeholder="1000.00">
-                    </div>
-                </div>
-                
-                <!-- Payment Method Configuration -->
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>
-                            Payment Method Configuration:
-                            <a href="https://docs.nuvei.com/documentation/apms-overview/apm-input-parameters/" target="_blank" title="View APM parameters documentation">📋</a>
-                        </label>
-                        <div class="radio-group compact">
-                            <label class="radio-option">
-                                <input type="radio" name="paymentMethodOption" value="default" checked onchange="togglePaymentMethodFields()">
-                                Default (All Available Methods)
-                            </label>
-                            <label class="radio-option">
-                                <input type="radio" name="paymentMethodOption" value="preselect" onchange="togglePaymentMethodFields()">
-                                Preselect Method (payment_method)
-                            </label>
-                            <label class="radio-option">
-                                <input type="radio" name="paymentMethodOption" value="filter" onchange="togglePaymentMethodFields()">
-                                Filter Methods (payment_methods)
-                            </label>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Payment Method Fields (Hidden by default) -->
-                <div id="paymentMethodFields" style="display: none;">
-                    <div class="form-row">
-                        <div class="form-group" id="singleMethodGroup" style="display: none;">
-                            <label for="payment_method">Payment Method:</label>
-                            <input type="text" id="payment_method" name="payment_method" placeholder="cc_card">
-                        </div>
-                        <div class="form-group" id="multipleMethodsGroup" style="display: none;">
-                            <label for="payment_methods">Payment Methods:</label>
-                            <textarea id="payment_methods" name="payment_methods" rows="3" placeholder="cc_card,apmgw_PayPal,apmgw_Skrill"></textarea>
-                            <small>Enter payment methods separated by commas. This will filter to show only these methods.</small>
-                        </div>
+                        <label for="wd_max_amount">Maximum Amount:</label>
+                        <input type="text" id="wd_max_amount" name="wd_max_amount" placeholder="1000.00">
                     </div>
                 </div>
             </div>
 
-            <!-- Customer & Billing Information Section -->
+            <!-- Customer Details Section -->
             <div class="section">
-                <h3>Customer & Billing Information</h3>
-                
-                <!-- Name Fields -->
+                <h3>Customer Details</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="email">Email:</label>
+                        <input type="email" id="email" name="email" placeholder="customer@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="userId">User ID (External):</label>
+                        <input type="text" id="userId" name="userId" placeholder="ext_user_123">
+                    </div>
+                </div>
                 <div class="form-row">
                     <div class="form-group">
                         <label for="first_name">First Name:</label>
@@ -293,24 +192,10 @@
                         <input type="text" id="last_name" name="last_name" placeholder="Doe">
                     </div>
                 </div>
-                
-                <!-- Contact Information -->
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="email">Email:</label>
-                        <input type="email" id="email" name="email" placeholder="customer@example.com">
-                    </div>
-                    <div class="form-group">
-                        <label for="phone1">Phone:</label>
-                        <input type="tel" id="phone1" name="phone1" placeholder="+1234567890">
-                    </div>
-                </div>
-                
-                <!-- Location Fields -->
                 <div class="form-row">
                     <div class="form-group">
                         <label for="country">Country:</label>
-                        <select id="country" name="country" required>
+                        <select id="country" name="country">
                             <option value="">Select Country</option>
                             <option value="AD">Andorra (AD)</option>
                             <option value="AE">United Arab Emirates (AE)</option>
@@ -464,54 +349,6 @@
                             <option value="MQ">Martinique (MQ)</option>
                             <option value="MR">Mauritania (MR)</option>
                             <option value="MS">Montserrat (MS)</option>
-<!--
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣤⣤⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠻⣿⣿⣿⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⣯⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢹⣿⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⣿⣇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢻⢺⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⡏⣧⣀⣀⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢶⣿⣋⣟⠭⣿⣿⠟⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⢻⣿⣭⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⡏⢮⣳⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢻⡿⣦⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢿⠢⣽⣅⠀⠀⠀⠀⠀⠀⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠸⡆⢤⣿⡇⠀⠀⠀⠀⣸⡟⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢷⠸⣞⡇⠀⠀⠀⠀⡏⢧⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⡄⣿⣷⠀⠀⠀⠀⢻⡈⢣⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣇⢸⣿⡆⠀⠀⠀⠀⢳⣬⣧⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢹⡈⣿⣧⠀⠀⢠⡄⣸⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⡇⢹⣿⡀⠀⢸⢧⠟⢹⠇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⠸⣿⡇⣠⠋⢾⣾⢸⢀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡖⠀⠸⣿⣶⣿⣷⡏⢰⡿⢿⠏⣸⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⡇⠀⣴⢋⣿⣿⣿⠇⡟⠁⣏⠀⣿⣧⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣰⡞⣏⢦⠇⢸⡿⢿⠋⢀⣤⣀⡘⢦⡟⢸⣆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢹⣿⠃⢀⣴⡆⠀⠀⠈⣹⣿⡷⠆⠀⣧⠈⢿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⠜⢁⡴⠋⡀⠙⢄⠀⣰⣿⣟⠓⠀⠀⢉⣴⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⣤⢰⡏⡠⠊⢀⡴⣇⠀⢀⡞⠉⠛⠀⡀⢀⣄⣩⠌⠙⢦⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⣸⣿⢣⠶⠖⠊⢀⣈⠉⣹⡷⢀⣴⡯⠔⣛⡵⠁⣠⡏⠸⣆⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⢹⡿⢿⠟⠀⣰⡞⠉⣿⡷⠇⠃⣠⢴⣶⣾⡋⢀⡴⣽⠁⠀⠘⣏⣀⢰⣆⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⣠⣶⣶⣅⣠⣶⠀⠒⠟⢁⡴⠋⠀⠀⠀⢹⣿⣿⡋⣧⢸⡇⡏⣀⣀⠀⠙⣿⣉⠙⢤⡄⠀⠀⠀
-⠀⠀⣠⣴⣺⢿⣿⣿⡛⠛⠿⠿⣯⣷⡲⣶⣟⣻⡀⠀⣠⣿⣿⣖⣸⣨⣿⠿⠛⣻⣿⣶⣾⣾⠇⠀⠻⣄⠀⠀
-⠀⣾⢟⠿⠿⢶⣮⡙⢏⢢⡀⢠⡌⣿⣿⡿⠟⡿⢳⣼⣿⣿⣿⣾⣿⣧⣤⣤⣤⣿⣿⣭⣿⠁⠀⠀⣀⣈⣧⠀
-⢺⣥⢿⠾⠿⠿⠿⡿⠚⢋⣠⠯⣿⢉⢉⠻⠾⠛⢿⣿⠻⠿⢛⣩⣤⣾⣭⠽⠶⣾⣻⢿⣻⢿⠶⢛⣻⡿⢽⠄
-
- __     __             _                                             _                          _       _                      
- \ \   / /            | |                                           | |                        | |     | |                     
-  \ \_/ /___   _   _  | |__    __ _ __   __ ___  __   __ ___  _ __  | |_  _   _  _ __  ___   __| |   __| |  ___   ___  _ __    
-   \   // _ \ | | | | | '_ \  / _` |\ \ / // _ \ \ \ / // _ \| '_ \ | __|| | | || '__|/ _ \ / _` |  / _` | / _ \ / _ \| '_ \   
-    | || (_) || |_| | | | | || (_| | \ V /|  __/  \ V /|  __/| | | || |_ | |_| || |  |  __/| (_| | | (_| ||  __/|  __/| |_) |_ 
-    |_| \___/  \__,_| |_| |_| \__,_|  \_/  \___|   \_/  \___||_| |_| \__| \__,_||_|   \___| \__,_|  \__,_| \___| \___|| .__/(_)
-  _____             _     _              _    _              __  _                 _                            _     | |      
- |  __ \           | |   | |            | |  | |            / _|(_)               | |                          | |    |_|      
- | |__) | ___  ___ | |_  | |__   _   _  | |_ | |__    ___  | |_  _  _ __  ___     | |_  _ __  __ _ __   __ ___ | |  ___  _ __  
- |  _  / / _ \/ __|| __| | '_ \ | | | | | __|| '_ \  / _ \ |  _|| || '__|/ _ \    | __|| '__|/ _` |\ \ / // _ \| | / _ \| '__| 
- | | \ \|  __/\__ \| |_  | |_) || |_| | | |_ | | | ||  __/ | |  | || |  |  __/ _  | |_ | |  | (_| | \ V /|  __/| ||  __/| | _  
- |_|  \_\\___||___/ \__| |_.__/  \__, |  \__||_| |_| \___| |_|  |_||_|   \___|( )  \__||_|   \__,_|  \_/  \___||_| \___||_|(_) 
-                                  __/ |                                       |/                                               
-                                 |___/                                                                                         
--->
                             <option value="MT">Malta (MT)</option>
                             <option value="MU">Mauritius (MU)</option>
                             <option value="MV">Maldives (MV)</option>
@@ -612,35 +449,8 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="state">
-                            State/Province:
-                            <a href="https://docs.nuvei.com/documentation/additional-links/country-and-currency-codes/#country-subdivision-codes" target="_blank" title="View ISO 3166-2 subdivision codes">📋</a>
-                        </label>
-                        <input type="text" id="state" name="state" placeholder="NY" maxlength="3">
-                    </div>
-                </div>
-                
-                <!-- Address Fields -->
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="city">City:</label>
-                        <input type="text" id="city" name="city" placeholder="New York">
-                    </div>
-                    <div class="form-group">
-                        <label for="address1">Address:</label>
-                        <input type="text" id="address1" name="address1" placeholder="123 Main St">
-                    </div>
-                </div>
-                
-                <!-- Postal Code and Date of Birth -->
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="zip">ZIP/Postal Code:</label>
-                        <input type="text" id="zip" name="zip" placeholder="10001">
-                    </div>
-                    <div class="form-group">
-                        <label for="dateOfBirth">Date of Birth:</label>
-                        <input type="date" id="dateOfBirth" name="dateOfBirth">
+                        <label for="phone">Phone:</label>
+                        <input type="text" id="phone" name="phone" placeholder="+1234567890">
                     </div>
                 </div>
                 
@@ -678,35 +488,28 @@
                 </div>
             </div>
 
-            <!-- URLs Section -->
+            <!-- Redirect URLs Section -->
             <div class="section">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>
-                            <input type="checkbox" id="enableResponseUrls" name="enableResponseUrls" onchange="toggleResponseUrls()">
-                            Edit Response URLs (Optional)
-                        </label>
-                    </div>
+                <h3>Redirect URLs</h3>
+                <div class="form-group">
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="enableRedirectUrls" onchange="toggleRedirectUrls()">
+                        Configure redirect URLs
+                    </label>
                 </div>
-                <div id="responseUrlsSection" style="display: none;">
-                    <h3>Response URLs</h3>
+                
+                <div id="redirectUrlsSection" style="display: none;">
                     <div class="form-group">
-                        <label for="success_url">Success URL:</label>
-                        <textarea id="success_url" name="success_url" placeholder="https://yoursite.com/success" rows="2"></textarea>
+                        <label for="successUrl">Success URL:</label>
+                        <input type="url" id="successUrl" name="successUrl" placeholder="https://yoursite.com/withdrawal/success">
                     </div>
                     <div class="form-group">
-                        <label for="error_url">Error URL:</label>
-                        <textarea id="error_url" name="error_url" placeholder="https://yoursite.com/error" rows="2"></textarea>
+                        <label for="failUrl">Fail URL:</label>
+                        <input type="url" id="failUrl" name="failUrl" placeholder="https://yoursite.com/withdrawal/fail">
                     </div>
                     <div class="form-group">
-                        <label for="pending_url">Pending URL:</label>
-                        <textarea id="pending_url" name="pending_url" placeholder="https://yoursite.com/pending" rows="2"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="notify_url">Notification URL: 
-                            <a href="https://webhook.site" target="_blank" class="webhook-link">Get webhook URL</a>
-                        </label>
-                        <textarea id="notify_url" name="notify_url" placeholder="https://webhook.site/your-unique-id" required rows="2"></textarea>
+                        <label for="backUrl">Back URL:</label>
+                        <input type="url" id="backUrl" name="backUrl" placeholder="https://yoursite.com/withdrawal/back">
                     </div>
                 </div>
             </div>
@@ -750,12 +553,13 @@
                     </div>
                 </div>
             </div>
+
             </div>
 
             <!-- Generate Button -->
             <div class="generate-section">
-                <button type="button" class="btn btn-primary btn-large" onclick="generateCashierUrl()">
-                    Generate Cashier URL & Checksum
+                <button type="button" class="btn btn-primary btn-large" onclick="generateWithdrawalUrl()">
+                    Generate Withdrawal URL & Checksum
                 </button>
             </div>
         </form>
@@ -777,22 +581,22 @@
             </div>
 
             <div class="result-group">
-                <label for="cashier-url">Complete Cashier URL:</label>
-                <textarea id="cashier-url" readonly></textarea>
+                <label for="withdrawal-url">Withdrawal URL:</label>
+                <textarea id="withdrawal-url" readonly></textarea>
                 <div class="url-actions">
-                    <button type="button" onclick="copyToClipboard('cashier-url')" class="copy-btn">Copy URL</button>
-                    <button type="button" onclick="openCashierPage()" class="open-btn">Open in New Tab</button>
+                    <button type="button" onclick="copyToClipboard('withdrawal-url')" class="copy-btn">Copy URL</button>
+                    <button type="button" onclick="openWithdrawalPage()" class="open-btn">Open in New Tab</button>
                 </div>
             </div>
         </div>
     </div>
 
     <footer>
-        <p>&copy; 2024 Nuvei Payment Integration Tool</p>
+        <p>&copy; 2024 Nuvei Withdrawal Integration Tool</p>
         <p>Sandbox Environment - For Development Use Only</p>
         <p>Prompted by Daniel Barshai - Message on Teams for issues and suggestions</p>
     </footer>
 
-    <script src="script.js"></script>
+    <script src="withdrawal.js"></script>
 </body>
 </html>
