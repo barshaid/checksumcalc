@@ -661,13 +661,16 @@ function getFormData() {
     // Handle additional parameters
     const additionalParams = document.querySelectorAll('.additional-param');
     additionalParams.forEach(paramDiv => {
-        const nameInput = paramDiv.querySelector('[data-param-counter]');
-        const valueInput = paramDiv.querySelector('[data-param-counter]:last-of-type');
-        
-        if (nameInput && valueInput && nameInput.value.trim() && valueInput.value.trim()) {
-            const paramName = nameInput.value.trim();
-            const paramValue = valueInput.value.trim();
-            data[paramName] = paramValue;
+        // Explicitly select the name and value inputs (first and second input elements)
+        const inputs = paramDiv.querySelectorAll('input');
+        if (inputs.length >= 2) {
+            const nameInput = inputs[0];
+            const valueInput = inputs[1];
+            if (nameInput && valueInput && nameInput.value.trim() && valueInput.value.trim()) {
+                const paramName = nameInput.value.trim();
+                const paramValue = valueInput.value.trim();
+                data[paramName] = paramValue;
+            }
         }
     });
     
@@ -752,6 +755,10 @@ function getFormData() {
 
 // Create concatenated string for checksum calculation (Nuvei Payment Page format)
 function createChecksumString(data, secretKey) {
+    if (data.timeStamp && !data.time_stamp) data.time_stamp = data.timeStamp;
+    // Ensure UI-only helper fields are excluded
+    if (data.hash_algorithm) delete data.hash_algorithm;
+    
     // According to Nuvei documentation, the checksum must use the exact order 
     // that parameters are sent in the request URL, NOT alphabetical order
     // Based on the example in their documentation, the standard order is:
@@ -936,7 +943,7 @@ async function generateCashierUrl() {
         const baseRequiredFields = [
             'merchant_id', 'merchant_site_id', 'secretKey', 'total_amount', 
             'currency', 'user_token_id', 'item_name_1', 'item_amount_1', 
-            'item_quantity_1', 'time_stamp'
+            'item_quantity_1', 'timeStamp' // use UI field id
         ];
         
         let requiredFields = [...baseRequiredFields];
@@ -960,14 +967,27 @@ async function generateCashierUrl() {
             return;
         }
         
-        const formData = getFormData();
-        const secretKey = document.getElementById('secretKey').value.trim();
+        // Explicitly read secret key VALUE (avoid using implicit global element which caused
+        // "[object HTMLInputElement]" at start of concatenated string)
+        const secretKeyInput = document.getElementById('secretKey');
+        const secretKey = secretKeyInput ? secretKeyInput.value.trim() : '';
+        if (!secretKey) {
+            alert('Secret key is required');
+            highlightAndScrollToField('secretKey');
+            return;
+        }
         
-        // Remove secret key from form data for checksum calculation
+        const formData = getFormData();
+        // Map UI timeStamp to API time_stamp
+        if (formData.timeStamp && !formData.time_stamp) {
+            formData.time_stamp = formData.timeStamp;
+        }
+        
+        // Remove secret key & UI-only fields before checksum/URL
         delete formData.secretKey;
+        delete formData.hash_algorithm; // UI only: do not include in checksum or URL
         
         // IMPORTANT: Remove spaces from all parameter values for both checksum and URL
-        // According to Nuvei docs, spaces should be removed from values
         const cleanedFormData = {};
         Object.keys(formData).forEach(key => {
             if (formData[key] && formData[key] !== '') {
@@ -1201,25 +1221,26 @@ function fillSampleData() {
     generateTimestamp();
     calculateTotal();
 
-    // Trigger auto-resize for all textareas after filling data
+    // Trigger auto-resize for all textareas after filling data & clean up errors
     setTimeout(() => {
         document.querySelectorAll('textarea').forEach(textarea => {
             const event = new Event('input', { bubbles: true });
             textarea.dispatchEvent(event);
         });
-    }, 100);
-
-    const credentialIds = new Set(['merchant_id','merchant_site_id','secretKey']);
-    document.querySelectorAll('.form-group.error').forEach(group => {
-        const inputs = Array.from(group.querySelectorAll('input, select, textarea'));
-        const containsCredential = inputs.some(el => credentialIds.has(el.id));
-        if (!containsCredential) {
-            const hasValue = inputs.some(el => el.value && el.value.trim() !== '');
-            if (hasValue) {
-                group.classList.remove('error');
-            }
+        // Remove error class from groups that now have values (excluding credential fields)
+        if (typeof credentialIds !== 'undefined') {
+            document.querySelectorAll('.form-group.error').forEach(group => {
+                const inputs = Array.from(group.querySelectorAll('input, select, textarea'));
+                const containsCredential = inputs.some(el => credentialIds.has(el.id));
+                if (!containsCredential) {
+                    const hasValue = inputs.some(el => el.value && el.value.trim() !== '');
+                    if (hasValue) {
+                        group.classList.remove('error');
+                    }
+                }
+            });
         }
-    });
+    }, 50);
     
     showMessage('Sample data filled in!', 'info');
     
