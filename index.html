@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuvei Checksum Calculator & Cashier Page Generator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-controls">
+                <div class="view-controls">
+                    <button type="button" id="toggleCompact" onclick="toggleCompactMode()" title="Toggle Compact View">📊</button>
+                    <button type="button" id="toggleDarkMode" onclick="toggleDarkMode()" title="Toggle Dark Mode">🌙</button>
+                </div>
+                <div class="page-navigation">
+                    <a href="withdrawal.html" class="nav-button">
+                        💸 Go to Withdrawal Page Generator
+                    </a>
+                </div>
+            </div>
+            <h1>Nuvei Payment Integration Tool</h1>
+            <p>Generate checksums and cashier page URLs for Nuvei sandbox environment</p>
+        </header>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <button type="button" class="action-btn danger" onclick="clearForm()">Clear Form</button>
+            <button type="button" class="action-btn success" onclick="fillSampleData()">Fill Sample Data</button>
+            <label class="auto-save-toggle">
+                <input type="checkbox" id="enableLocalStorage" onchange="toggleLocalStorage()">
+                Auto-save form data
+            </label>
+        </div>
+
+        <!-- Test Scenarios Section -->
+        <div class="test-scenarios-section">
+            <div class="collapsible-header" onclick="toggleSection('testScenarios')">
+                <h3>💳 Payment Test Scenarios</h3>
+                <span class="toggle-icon" id="testScenariosIcon">▼</span>
+            </div>
+            <div class="collapsible-body" id="testScenariosBody" style="display: none;">
+                <p class="section-note">Pre-configured payment test scenarios for common payment flows and amounts.</p>
+                
+                <div class="test-scenarios-grid">
+                    <!-- Approved Scenarios -->
+                    <div class="test-category">
+                        <h4>✅ Approved Transactions</h4>
+                        <div class="test-buttons">
+                            <button type="button" onclick="fillTestScenario('approved-visa')" class="test-btn test-success">
+                                <strong>Visa Approved</strong>
+                                <small>4761344136141390</small>
+                            </button>
+                            <button type="button" onclick="fillTestScenario('approved-mastercard')" class="test-btn test-success">
+                                <strong>MC Approved</strong>
+                                <small>5101081046006034</small>
+                            </button>
+                            <button type="button" onclick="fillTestScenario('amex-approved')" class="test-btn test-success">
+                                <strong>Amex Approved</strong>
+                                <small>375510513169537</small>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Declined Scenarios -->
+                    <div class="test-category">
+                        <h4>❌ Declined Transactions</h4>
+                        <div class="test-buttons">
+                            <button type="button" onclick="fillTestScenario('declined-visa')" class="test-btn test-error">
+                                <strong>Visa Declined</strong>
+                                <small>4008370896662369</small>
+                            </button>
+                            <button type="button" onclick="fillTestScenario('insufficient-funds')" class="test-btn test-error">
+                                <strong>Insufficient Funds</strong>
+                                <small>4000173946194872</small>
+                            </button>
+                            <button type="button" onclick="fillTestScenario('expired-card')" class="test-btn test-error">
+                                <strong>Expired Card</strong>
+                                <small>4000247422310226</small>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- 3DS Scenarios -->
+                    <div class="test-category">
+                        <h4>🔒 3DS Testing</h4>
+                        <div class="test-buttons">
+                            <button type="button" onclick="fillTestScenario('3ds-frictionless')" class="test-btn test-info">
+                                <strong>3DS Frictionless</strong>
+                                <small>FL-BRW1</small>
+                            </button>
+                            <button type="button" onclick="fillTestScenario('3ds-challenge')" class="test-btn test-info">
+                                <strong>3DS Challenge</strong>
+                                <small>CL-BRW1</small>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Special Scenarios -->
+                    <div class="test-category">
+                        <h4>🎯 Special Cases</h4>
+                        <div class="test-buttons">
+                            <button type="button" onclick="fillTestScenario('paypal-test')" class="test-btn test-warning">
+                                <strong>PayPal Test</strong>
+                                <small>APM Testing</small>
+                            </button>
+                            <button type="button" onclick="fillTestScenario('high-amount')" class="test-btn test-info">
+                                <strong>High Amount</strong>
+                                <small>$5,000.00</small>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="test-scenarios-note">
+                    <p><strong>Note:</strong> Test scenarios include official Nuvei test card numbers and credentials. You still need to provide your merchant credentials (ID, Site ID, Secret Key).</p>
+                </div>
+            </div>
+        </div>
+
+        <form id="payment-form">
+            <!-- Hidden Version Field -->
+            <input type="hidden" id="version" name="version" value="4.0.0">
+            
+            <!-- Data Sections Container -->
+            <div class="sections-container">
+            <!-- API Credentials Section -->
+            <div class="section">
+                <h3>API Credentials</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="merchant_id">Merchant ID:</label>
+                        <input type="text" id="merchant_id" name="merchant_id" placeholder="Merchant ID" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="merchant_site_id">Merchant Site ID:</label>
+                        <input type="text" id="merchant_site_id" name="merchant_site_id" placeholder="Merchant Site ID" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="secretKey">Secret Key:</label>
+                    <input type="text" id="secretKey" name="secretKey" placeholder="Secret Key" required>
+                </div>
+                <div class="form-group">
+                    <label for="hash_algorithm">Hash Algorithm:</label>
+                    <select id="hash_algorithm" name="hash_algorithm">
+                        <option value="sha256" selected>SHA-256</option>
+                        <option value="md5">MD5</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Transaction Details Section -->
+            <div class="section">
+                <h3>Transaction Details</h3>
+                
+                <!-- User Token and Client ID -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="user_token_id">User Token ID:</label>
+                        <input type="text" id="user_token_id" name="user_token_id" placeholder="user_12345" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="merchant_unique_id">Client Unique ID:</label>
+                        <input type="text" id="merchant_unique_id" name="merchant_unique_id" placeholder="order_12345">
+                    </div>
+                </div>
+                
+                <!-- Items Section -->
+                <div class="items-section">
+                    <div class="section-header">
+                        <button type="button" class="collapse-items-btn" onclick="toggleItemsSection(this)" aria-expanded="false" style="margin-right:8px;">▶</button>
+                        <h4 style="display:inline-block; margin:0;">Items</h4>
+                        <button type="button" class="btn btn-primary btn-sm" onclick="addItem()" style="margin-left:auto;">Add Item</button>
+                    </div>
+                    
+                    <div id="itemsContainer" style="display:none;">
+                        <!-- Item 1 (mandatory - cannot be removed) -->
+                        <div class="item-row" id="item-1" data-item-number="1">
+                            <div class="item-header">
+                                <button type="button" class="collapse-item-btn" onclick="toggleItemCollapse(1, this)" aria-expanded="false">▶</button>
+                                <span class="item-label">Item 1 (Required)</span>
+                            </div>
+                            <div class="item-body" style="display:none;">
+                                <div class="form-row four-columns">
+                                    <div class="form-group">
+                                        <label for="item_name_1">Item Name:</label>
+                                        <input type="text" id="item_name_1" name="item_name_1" placeholder="Product Name" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="item_amount_1">Item Amount:</label>
+                                        <input type="text" id="item_amount_1" name="item_amount_1" placeholder="100.00" required onchange="calculateTotal()">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="item_quantity_1">Quantity:</label>
+                                        <input type="text" id="item_quantity_1" name="item_quantity_1" placeholder="1" value="1" required onchange="calculateTotal()">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Item Total:</label>
+                                        <input type="text" id="item_total_1" placeholder="100.00" readonly class="auto-calculated">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Transaction Totals -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="total_amount">Total Amount (Auto-calculated):</label>
+                        <input type="text" id="total_amount" name="total_amount" placeholder="100.00" required readonly class="auto-calculated">
+                    </div>
+                    <div class="form-group">
+                        <label for="currency">Currency:</label>
+                        <input type="text" id="currency" name="currency" placeholder="USD" maxlength="3" required>
+                    </div>
+                </div>
+                
+                <!-- Open Amount Section -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="enableOpenAmount" name="enableOpenAmount" onchange="toggleOpenAmount()">
+                            Enable Open Amount (User Input)
+                        </label>
+                    </div>
+                </div>
+                <div id="openAmountSection" class="form-row" style="display: none;">
+                    <div class="form-group">
+                        <label for="openAmountMin">Min Amount:</label>
+                        <input type="text" id="openAmountMin" name="openAmountMin" placeholder="1.00">
+                    </div>
+                    <div class="form-group">
+                        <label for="openAmountMax">Max Amount:</label>
+                        <input type="text" id="openAmountMax" name="openAmountMax" placeholder="1000.00">
+                    </div>
+                </div>
+                
+                <!-- Payment Method Configuration -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>
+                            Payment Method Configuration:
+                            <a href="https://docs.nuvei.com/documentation/apms-overview/apm-input-parameters/" target="_blank" title="View APM parameters documentation">📋</a>
+                        </label>
+                        <div class="radio-group compact">
+                            <label class="radio-option">
+                                <input type="radio" name="paymentMethodOption" value="default" checked onchange="togglePaymentMethodFields()">
+                                Default (All Available Methods)
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="paymentMethodOption" value="preselect" onchange="togglePaymentMethodFields()">
+                                Preselect Method (payment_method)
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="paymentMethodOption" value="filter" onchange="togglePaymentMethodFields()">
+                                Filter Methods (payment_methods)
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Payment Method Fields (Hidden by default) -->
+                <div id="paymentMethodFields" style="display: none;">
+                    <div class="form-row">
+                        <div class="form-group" id="singleMethodGroup" style="display: none;">
+                            <label for="payment_method">Payment Method:</label>
+                            <input type="text" id="payment_method" name="payment_method" placeholder="cc_card">
+                        </div>
+                        <div class="form-group" id="multipleMethodsGroup" style="display: none;">
+                            <label for="payment_methods">Payment Methods:</label>
+                            <textarea id="payment_methods" name="payment_methods" rows="3" placeholder="cc_card,apmgw_PayPal,apmgw_Skrill"></textarea>
+                            <small>Enter payment methods separated by commas. This will filter to show only these methods.</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Customer & Billing Information Section -->
+            <div class="section">
+                <h3>Customer & Billing Information</h3>
+                
+                <!-- Name Fields -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="first_name">First Name:</label>
+                        <input type="text" id="first_name" name="first_name" placeholder="John">
+                    </div>
+                    <div class="form-group">
+                        <label for="last_name">Last Name:</label>
+                        <input type="text" id="last_name" name="last_name" placeholder="Doe">
+                    </div>
+                </div>
+                
+                <!-- Contact Information -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="email">Email:</label>
+                        <input type="email" id="email" name="email" placeholder="customer@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="phone1">Phone:</label>
+                        <input type="tel" id="phone1" name="phone1" placeholder="+1234567890">
+                    </div>
+                </div>
+                
+                <!-- Location Fields -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="country">Country:</label>
+                        <select id="country" name="country" required>
+                            <option value="">Select Country</option>
+                            <option value="AD">Andorra (AD)</option>
+                            <option value="AE">United Arab Emirates (AE)</option>
+                            <option value="AF">Afghanistan (AF)</option>
+                            <option value="AG">Antigua and Barbuda (AG)</option>
+                            <option value="AI">Anguilla (AI)</option>
+                            <option value="AL">Albania (AL)</option>
+                            <option value="AM">Armenia (AM)</option>
+                            <option value="AO">Angola (AO)</option>
+                            <option value="AQ">Antarctica (AQ)</option>
+                            <option value="AR">Argentina (AR)</option>
+                            <option value="AS">American Samoa (AS)</option>
+                            <option value="AT">Austria (AT)</option>
+                            <option value="AU">Australia (AU)</option>
+                            <option value="AW">Aruba (AW)</option>
+                            <option value="AX">Åland Islands (AX)</option>
+                            <option value="AZ">Azerbaijan (AZ)</option>
+                            <option value="BA">Bosnia and Herzegovina (BA)</option>
+                            <option value="BB">Barbados (BB)</option>
+                            <option value="BD">Bangladesh (BD)</option>
+                            <option value="BE">Belgium (BE)</option>
+                            <option value="BF">Burkina Faso (BF)</option>
+                            <option value="BG">Bulgaria (BG)</option>
+                            <option value="BH">Bahrain (BH)</option>
+                            <option value="BI">Burundi (BI)</option>
+                            <option value="BJ">Benin (BJ)</option>
+                            <option value="BL">Saint Barthélemy (BL)</option>
+                            <option value="BM">Bermuda (BM)</option>
+                            <option value="BN">Brunei Darussalam (BN)</option>
+                            <option value="BO">Bolivia (BO)</option>
+                            <option value="BQ">Bonaire, Sint Eustatius and Saba (BQ)</option>
+                            <option value="BR">Brazil (BR)</option>
+                            <option value="BS">Bahamas (BS)</option>
+                            <option value="BT">Bhutan (BT)</option>
+                            <option value="BV">Bouvet Island (BV)</option>
+                            <option value="BW">Botswana (BW)</option>
+                            <option value="BY">Belarus (BY)</option>
+                            <option value="BZ">Belize (BZ)</option>
+                            <option value="CA">Canada (CA)</option>
+                            <option value="CC">Cocos (Keeling) Islands (CC)</option>
+                            <option value="CD">Congo, Democratic Republic of the (CD)</option>
+                            <option value="CF">Central African Republic (CF)</option>
+                            <option value="CG">Congo (CG)</option>
+                            <option value="CH">Switzerland (CH)</option>
+                            <option value="CI">Côte d'Ivoire (CI)</option>
+                            <option value="CK">Cook Islands (CK)</option>
+                            <option value="CL">Chile (CL)</option>
+                            <option value="CM">Cameroon (CM)</option>
+                            <option value="CN">China (CN)</option>
+                            <option value="CO">Colombia (CO)</option>
+                            <option value="CR">Costa Rica (CR)</option>
+                            <option value="CU">Cuba (CU)</option>
+                            <option value="CV">Cabo Verde (CV)</option>
+                            <option value="CW">Curaçao (CW)</option>
+                            <option value="CX">Christmas Island (CX)</option>
+                            <option value="CY">Cyprus (CY)</option>
+                            <option value="CZ">Czechia (CZ)</option>
+                            <option value="DE">Germany (DE)</option>
+                            <option value="DJ">Djibouti (DJ)</option>
+                            <option value="DK">Denmark (DK)</option>
+                            <option value="DM">Dominica (DM)</option>
+                            <option value="DO">Dominican Republic (DO)</option>
+                            <option value="DZ">Algeria (DZ)</option>
+                            <option value="EC">Ecuador (EC)</option>
+                            <option value="EE">Estonia (EE)</option>
+                            <option value="EG">Egypt (EG)</option>
+                            <option value="EH">Western Sahara (EH)</option>
+                            <option value="ER">Eritrea (ER)</option>
+                            <option value="ES">Spain (ES)</option>
+                            <option value="ET">Ethiopia (ET)</option>
+                            <option value="FI">Finland (FI)</option>
+                            <option value="FJ">Fiji (FJ)</option>
+                            <option value="FK">Falkland Islands (Malvinas) (FK)</option>
+                            <option value="FM">Micronesia, Federated States of (FM)</option>
+                            <option value="FO">Faroe Islands (FO)</option>
+                            <option value="FR">France (FR)</option>
+                            <option value="GA">Gabon (GA)</option>
+                            <option value="GB">United Kingdom (GB)</option>
+                            <option value="GD">Grenada (GD)</option>
+                            <option value="GE">Georgia (GE)</option>
+                            <option value="GF">French Guiana (GF)</option>
+                            <option value="GG">Guernsey (GG)</option>
+                            <option value="GH">Ghana (GH)</option>
+                            <option value="GI">Gibraltar (GI)</option>
+                            <option value="GL">Greenland (GL)</option>
+                            <option value="GM">Gambia (GM)</option>
+                            <option value="GN">Guinea (GN)</option>
+                            <option value="GP">Guadeloupe (GP)</option>
+                            <option value="GQ">Equatorial Guinea (GQ)</option>
+                            <option value="GR">Greece (GR)</option>
+                            <option value="GS">South Georgia and the South Sandwich Islands (GS)</option>
+                            <option value="GT">Guatemala (GT)</option>
+                            <option value="GU">Guam (GU)</option>
+                            <option value="GW">Guinea-Bissau (GW)</option>
+                            <option value="GY">Guyana (GY)</option>
+                            <option value="HK">Hong Kong (HK)</option>
+                            <option value="HM">Heard Island and McDonald Islands (HM)</option>
+                            <option value="HN">Honduras (HN)</option>
+                            <option value="HR">Croatia (HR)</option>
+                            <option value="HT">Haiti (HT)</option>
+                            <option value="HU">Hungary (HU)</option>
+                            <option value="ID">Indonesia (ID)</option>
+                            <option value="IE">Ireland (IE)</option>
+                            <option value="IL">Israel (IL)</option>
+                            <option value="IM">Isle of Man (IM)</option>
+                            <option value="IN">India (IN)</option>
+                            <option value="IO">British Indian Ocean Territory (IO)</option>
+                            <option value="IQ">Iraq (IQ)</option>
+                            <option value="IR">Iran, Islamic Republic of (IR)</option>
+                            <option value="IS">Iceland (IS)</option>
+                            <option value="IT">Italy (IT)</option>
+                            <option value="JE">Jersey (JE)</option>
+                            <option value="JM">Jamaica (JM)</option>
+                            <option value="JO">Jordan (JO)</option>
+                            <option value="JP">Japan (JP)</option>
+                            <option value="KE">Kenya (KE)</option>
+                            <option value="KG">Kyrgyzstan (KG)</option>
+                            <option value="KH">Cambodia (KH)</option>
+                            <option value="KI">Kiribati (KI)</option>
+                            <option value="KM">Comoros (KM)</option>
+                            <option value="KN">Saint Kitts and Nevis (KN)</option>
+                            <option value="KP">Korea, Democratic People's Republic of (KP)</option>
+                            <option value="KR">Korea, Republic of (KR)</option>
+                            <option value="KW">Kuwait (KW)</option>
+                            <option value="KY">Cayman Islands (KY)</option>
+                            <option value="KZ">Kazakhstan (KZ)</option>
+                            <option value="LA">Lao People's Democratic Republic (LA)</option>
+                            <option value="LB">Lebanon (LB)</option>
+                            <option value="LC">Saint Lucia (LC)</option>
+                            <option value="LI">Liechtenstein (LI)</option>
+                            <option value="LK">Sri Lanka (LK)</option>
+                            <option value="LR">Liberia (LR)</option>
+                            <option value="LS">Lesotho (LS)</option>
+                            <option value="LT">Lithuania (LT)</option>
+                            <option value="LU">Luxembourg (LU)</option>
+                            <option value="LV">Latvia (LV)</option>
+                            <option value="LY">Libya (LY)</option>
+                            <option value="MA">Morocco (MA)</option>
+                            <option value="MC">Monaco (MC)</option>
+                            <option value="MD">Moldova, Republic of (MD)</option>
+                            <option value="ME">Montenegro (ME)</option>
+                            <option value="MF">Saint Martin (French part) (MF)</option>
+                            <option value="MG">Madagascar (MG)</option>
+                            <option value="MH">Marshall Islands (MH)</option>
+                            <option value="MK">North Macedonia (MK)</option>
+                            <option value="ML">Mali (ML)</option>
+                            <option value="MM">Myanmar (MM)</option>
+                            <option value="MN">Mongolia (MN)</option>
+                            <option value="MO">Macao (MO)</option>
+                            <option value="MP">Northern Mariana Islands (MP)</option>
+                            <option value="MQ">Martinique (MQ)</option>
+                            <option value="MR">Mauritania (MR)</option>
+                            <option value="MS">Montserrat (MS)</option>
+<!--
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣤⣤⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠻⣿⣿⣿⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⣯⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢹⣿⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⣿⣇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢻⢺⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⡏⣧⣀⣀⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢶⣿⣋⣟⠭⣿⣿⠟⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⢻⣿⣭⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⡏⢮⣳⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢻⡿⣦⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢿⠢⣽⣅⠀⠀⠀⠀⠀⠀⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠸⡆⢤⣿⡇⠀⠀⠀⠀⣸⡟⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢷⠸⣞⡇⠀⠀⠀⠀⡏⢧⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⡄⣿⣷⠀⠀⠀⠀⢻⡈⢣⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣇⢸⣿⡆⠀⠀⠀⠀⢳⣬⣧⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢹⡈⣿⣧⠀⠀⢠⡄⣸⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⡇⢹⣿⡀⠀⢸⢧⠟⢹⠇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⠸⣿⡇⣠⠋⢾⣾⢸⢀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡖⠀⠸⣿⣶⣿⣷⡏⢰⡿⢿⠏⣸⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⡇⠀⣴⢋⣿⣿⣿⠇⡟⠁⣏⠀⣿⣧⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣰⡞⣏⢦⠇⢸⡿⢿⠋⢀⣤⣀⡘⢦⡟⢸⣆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢹⣿⠃⢀⣴⡆⠀⠀⠈⣹⣿⡷⠆⠀⣧⠈⢿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⠜⢁⡴⠋⡀⠙⢄⠀⣰⣿⣟⠓⠀⠀⢉⣴⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⣤⢰⡏⡠⠊⢀⡴⣇⠀⢀⡞⠉⠛⠀⡀⢀⣄⣩⠌⠙⢦⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⣸⣿⢣⠶⠖⠊⢀⣈⠉⣹⡷⢀⣴⡯⠔⣛⡵⠁⣠⡏⠸⣆⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⢹⡿⢿⠟⠀⣰⡞⠉⣿⡷⠇⠃⣠⢴⣶⣾⡋⢀⡴⣽⠁⠀⠘⣏⣀⢰⣆⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⣠⣶⣶⣅⣠⣶⠀⠒⠟⢁⡴⠋⠀⠀⠀⢹⣿⣿⡋⣧⢸⡇⡏⣀⣀⠀⠙⣿⣉⠙⢤⡄⠀⠀⠀
+⠀⠀⣠⣴⣺⢿⣿⣿⡛⠛⠿⠿⣯⣷⡲⣶⣟⣻⡀⠀⣠⣿⣿⣖⣸⣨⣿⠿⠛⣻⣿⣶⣾⣾⠇⠀⠻⣄⠀⠀
+⠀⣾⢟⠿⠿⢶⣮⡙⢏⢢⡀⢠⡌⣿⣿⡿⠟⡿⢳⣼⣿⣿⣿⣾⣿⣧⣤⣤⣤⣿⣿⣭⣿⠁⠀⠀⣀⣈⣧⠀
+⢺⣥⢿⠾⠿⠿⠿⡿⠚⢋⣠⠯⣿⢉⢉⠻⠾⠛⢿⣿⠻⠿⢛⣩⣤⣾⣭⠽⠶⣾⣻⢿⣻⢿⠶⢛⣻⡿⢽⠄
+
+ __     __             _                                             _                          _       _                      
+ \ \   / /            | |                                           | |                        | |     | |                     
+  \ \_/ /___   _   _  | |__    __ _ __   __ ___  __   __ ___  _ __  | |_  _   _  _ __  ___   __| |   __| |  ___   ___  _ __    
+   \   // _ \ | | | | | '_ \  / _` |\ \ / // _ \ \ \ / // _ \| '_ \ | __|| | | || '__|/ _ \ / _` |  / _` | / _ \ / _ \| '_ \   
+    | || (_) || |_| | | | | || (_| | \ V /|  __/  \ V /|  __/| | | || |_ | |_| || |  |  __/| (_| | | (_| ||  __/|  __/| |_) |_ 
+    |_| \___/  \__,_| |_| |_| \__,_|  \_/  \___|   \_/  \___||_| |_| \__| \__,_||_|   \___| \__,_|  \__,_| \___| \___|| .__/(_)
+  _____             _     _              _    _              __  _                 _                            _     | |      
+ |  __ \           | |   | |            | |  | |            / _|(_)               | |                          | |    |_|      
+ | |__) | ___  ___ | |_  | |__   _   _  | |_ | |__    ___  | |_  _  _ __  ___     | |_  _ __  __ _ __   __ ___ | |  ___  _ __  
+ |  _  / / _ \/ __|| __| | '_ \ | | | | | __|| '_ \  / _ \ |  _|| || '__|/ _ \    | __|| '__|/ _` |\ \ / // _ \| | / _ \| '__| 
+ | | \ \|  __/\__ \| |_  | |_) || |_| | | |_ | | | ||  __/ | |  | || |  |  __/ _  | |_ | |  | (_| | \ V /|  __/| ||  __/| | _  
+ |_|  \_\\___||___/ \__| |_.__/  \__, |  \__||_| |_| \___| |_|  |_||_|   \___|( )  \__||_|   \__,_|  \_/  \___||_| \___||_|(_) 
+                                  __/ |                                       |/                                               
+                                 |___/                                                                                         
+-->
+                            <option value="MT">Malta (MT)</option>
+                            <option value="MU">Mauritius (MU)</option>
+                            <option value="MV">Maldives (MV)</option>
+                            <option value="MW">Malawi (MW)</option>
+                            <option value="MX">Mexico (MX)</option>
+                            <option value="MY">Malaysia (MY)</option>
+                            <option value="MZ">Mozambique (MZ)</option>
+                            <option value="NA">Namibia (NA)</option>
+                            <option value="NC">New Caledonia (NC)</option>
+                            <option value="NE">Niger (NE)</option>
+                            <option value="NF">Norfolk Island (NF)</option>
+                            <option value="NG">Nigeria (NG)</option>
+                            <option value="NI">Nicaragua (NI)</option>
+                            <option value="NL">Netherlands (NL)</option>
+                            <option value="NO">Norway (NO)</option>
+                            <option value="NP">Nepal (NP)</option>
+                            <option value="NR">Nauru (NR)</option>
+                            <option value="NU">Niue (NU)</option>
+                            <option value="NZ">New Zealand (NZ)</option>
+                            <option value="OM">Oman (OM)</option>
+                            <option value="PA">Panama (PA)</option>
+                            <option value="PE">Peru (PE)</option>
+                            <option value="PF">French Polynesia (PF)</option>
+                            <option value="PG">Papua New Guinea (PG)</option>
+                            <option value="PH">Philippines (PH)</option>
+                            <option value="PK">Pakistan (PK)</option>
+                            <option value="PL">Poland (PL)</option>
+                            <option value="PM">Saint Pierre and Miquelon (PM)</option>
+                            <option value="PN">Pitcairn (PN)</option>
+                            <option value="PR">Puerto Rico (PR)</option>
+                            <option value="PS">Palestine, State of (PS)</option>
+                            <option value="PT">Portugal (PT)</option>
+                            <option value="PW">Palau (PW)</option>
+                            <option value="PY">Paraguay (PY)</option>
+                            <option value="QA">Qatar (QA)</option>
+                            <option value="RE">Réunion (RE)</option>
+                            <option value="RO">Romania (RO)</option>
+                            <option value="RS">Serbia (RS)</option>
+                            <option value="RU">Russian Federation (RU)</option>
+                            <option value="RW">Rwanda (RW)</option>
+                            <option value="SA">Saudi Arabia (SA)</option>
+                            <option value="SB">Solomon Islands (SB)</option>
+                            <option value="SC">Seychelles (SC)</option>
+                            <option value="SD">Sudan (SD)</option>
+                            <option value="SE">Sweden (SE)</option>
+                            <option value="SG">Singapore (SG)</option>
+                            <option value="SH">Saint Helena, Ascension and Tristan da Cunha (SH)</option>
+                            <option value="SI">Slovenia (SI)</option>
+                            <option value="SJ">Svalbard and Jan Mayen (SJ)</option>
+                            <option value="SK">Slovakia (SK)</option>
+                            <option value="SL">Sierra Leone (SL)</option>
+                            <option value="SM">San Marino (SM)</option>
+                            <option value="SN">Senegal (SN)</option>
+                            <option value="SO">Somalia (SO)</option>
+                            <option value="SR">Suriname (SR)</option>
+                            <option value="SS">South Sudan (SS)</option>
+                            <option value="ST">Sao Tome and Principe (ST)</option>
+                            <option value="SV">El Salvador (SV)</option>
+                            <option value="SX">Sint Maarten (Dutch part) (SX)</option>
+                            <option value="SY">Syrian Arab Republic (SY)</option>
+                            <option value="SZ">Eswatini (SZ)</option>
+                            <option value="TC">Turks and Caicos Islands (TC)</option>
+                            <option value="TD">Chad (TD)</option>
+                            <option value="TF">French Southern Territories (TF)</option>
+                            <option value="TG">Togo (TG)</option>
+                            <option value="TH">Thailand (TH)</option>
+                            <option value="TJ">Tajikistan (TJ)</option>
+                            <option value="TK">Tokelau (TK)</option>
+                            <option value="TL">Timor-Leste (TL)</option>
+                            <option value="TM">Turkmenistan (TM)</option>
+                            <option value="TN">Tunisia (TN)</option>
+                            <option value="TO">Tonga (TO)</option>
+                            <option value="TR">Turkey (TR)</option>
+                            <option value="TT">Trinidad and Tobago (TT)</option>
+                            <option value="TV">Tuvalu (TV)</option>
+                            <option value="TW">Taiwan, Province of China (TW)</option>
+                            <option value="TZ">Tanzania, United Republic of (TZ)</option>
+                            <option value="UA">Ukraine (UA)</option>
+                            <option value="UG">Uganda (UG)</option>
+                            <option value="UM">United States Minor Outlying Islands (UM)</option>
+                            <option value="US">United States of America (US)</option>
+                            <option value="UY">Uruguay (UY)</option>
+                            <option value="UZ">Uzbekistan (UZ)</option>
+                            <option value="VA">Holy See (Vatican City State) (VA)</option>
+                            <option value="VC">Saint Vincent and the Grenadines (VC)</option>
+                            <option value="VE">Venezuela, Bolivarian Republic of (VE)</option>
+                            <option value="VG">Virgin Islands, British (VG)</option>
+                            <option value="VI">Virgin Islands, U.S. (VI)</option>
+                            <option value="VN">Viet Nam (VN)</option>
+                            <option value="VU">Vanuatu (VU)</option>
+                            <option value="WF">Wallis and Futuna (WF)</option>
+                            <option value="WS">Samoa (WS)</option>
+                            <option value="YE">Yemen (YE)</option>
+                            <option value="YT">Mayotte (YT)</option>
+                            <option value="ZA">South Africa (ZA)</option>
+                            <option value="ZM">Zambia (ZM)</option>
+                            <option value="ZW">Zimbabwe (ZW)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="state">
+                            State/Province:
+                            <a href="https://docs.nuvei.com/documentation/additional-links/country-and-currency-codes/#country-subdivision-codes" target="_blank" title="View ISO 3166-2 subdivision codes">📋</a>
+                        </label>
+                        <input type="text" id="state" name="state" placeholder="NY" maxlength="3">
+                    </div>
+                </div>
+                
+                <!-- Address Fields -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="city">City:</label>
+                        <input type="text" id="city" name="city" placeholder="New York">
+                    </div>
+                    <div class="form-group">
+                        <label for="address1">Address:</label>
+                        <input type="text" id="address1" name="address1" placeholder="123 Main St">
+                    </div>
+                </div>
+                
+                <!-- Postal Code and Date of Birth -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="zip">ZIP/Postal Code:</label>
+                        <input type="text" id="zip" name="zip" placeholder="10001">
+                    </div>
+                    <div class="form-group">
+                        <label for="dateOfBirth">Date of Birth:</label>
+                        <input type="date" id="dateOfBirth" name="dateOfBirth">
+                    </div>
+                </div>
+                
+                <!-- Locale -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="merchantLocale">Locale:</label>
+                        <select id="merchantLocale" name="merchantLocale">
+                            <option value="">Default (English)</option>
+                            <option value="sq_SQ">Albanian</option>
+                            <option value="ar_AA">Arabic</option>
+                            <option value="be_BE">Belarusian</option>
+                            <option value="bg_BG">Bulgarian</option>
+                            <option value="ca_CA">Catalan</option>
+                            <option value="zh_CN">Chinese (PRC)</option>
+                            <option value="hr_HR">Croatian</option>
+                            <option value="cs_CS">Czech</option>
+                            <option value="da_DK">Danish</option>
+                            <option value="en_AU">English (Australia)</option>
+                            <option value="en_CA">English (Canada)</option>
+                            <option value="en_UK">English (UK)</option>
+                            <option value="en_US">English (US)</option>
+                            <option value="nl_NL">Dutch (Standard)</option>
+                            <option value="et_ET">Estonian</option>
+                            <option value="fi_FI">Finnish</option>
+                            <option value="fr_FR">French</option>
+                            <option value="de_DE">German</option>
+                            <option value="el_EL">Greek</option>
+                            <option value="iw_IL">Hebrew</option>
+                            <option value="hi_HI">Hindi</option>
+                            <option value="hu_HU">Hungarian</option>
+                            <option value="is_IS">Icelandic</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- URLs Section -->
+            <div class="section">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="enableResponseUrls" name="enableResponseUrls" onchange="toggleResponseUrls()">
+                            Edit Response URLs (Optional)
+                        </label>
+                    </div>
+                </div>
+                <div id="responseUrlsSection" style="display: none;">
+                    <h3>Response URLs</h3>
+                    <div class="form-group">
+                        <label for="success_url">Success URL:</label>
+                        <textarea id="success_url" name="success_url" placeholder="https://yoursite.com/success" rows="2"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="error_url">Error URL:</label>
+                        <textarea id="error_url" name="error_url" placeholder="https://yoursite.com/error" rows="2"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="pending_url">Pending URL:</label>
+                        <textarea id="pending_url" name="pending_url" placeholder="https://yoursite.com/pending" rows="2"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="notify_url">Notification URL: 
+                            <a href="https://webhook.site" target="_blank" class="webhook-link">Get webhook URL</a>
+                        </label>
+                        <textarea id="notify_url" name="notify_url" placeholder="https://webhook.site/your-unique-id" required rows="2"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Custom Fields Section -->
+            <div class="section">
+                <h3>Custom Fields</h3>
+                <div class="section-header">
+                    <p class="section-note">Add up to 15 custom fields for merchant-specific data (customField1, customField2, etc.)</p>
+                    <button type="button" class="btn btn-primary btn-sm" onclick="addCustomField()">Add Custom Field</button>
+                </div>
+                <div id="customFields">
+                    <!-- Dynamic custom fields will be added here -->
+                </div>
+            </div>
+
+            <!-- Additional Parameters Section -->
+            <div class="section">
+                <h3>Additional Parameters</h3>
+                <p class="section-description">Add custom parameter name-value pairs for your specific needs</p>
+                
+                <!-- Dynamic Additional Parameters -->
+                <div id="additionalParameters">
+                    <!-- Dynamic parameters will be added here -->
+                </div>
+                <div class="add-button-container">
+                    <button type="button" onclick="addAdditionalParameter()" class="add-param-btn">+ Add Parameter</button>
+                </div>
+            </div>
+
+            <!-- Timestamp Section -->
+            <div class="section">
+                <h3>Timestamp</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="timeStamp">Timestamp (YYYYMMDDHHMMSS):</label>
+                        <input type="text" id="timeStamp" name="timeStamp" placeholder="20240101120000" required readonly>
+                    </div>
+                    <div class="form-group">
+                        <button type="button" class="btn btn-secondary" onclick="generateTimestamp()">Generate Current Timestamp</button>
+                    </div>
+                </div>
+            </div>
+            </div>
+
+            <!-- Right column container for compact mode (actions + results) -->
+            <div class="right-column-container">
+                <!-- Generate Button -->
+                <div class="generate-section form-actions">
+                    <button type="button" class="btn btn-primary btn-large" onclick="generateCashierUrl()">
+                        Generate Cashier URL & Checksum
+                    </button>
+                </div>
+
+                <!-- Results Section -->
+                <div id="results" class="results-section result-section" style="display: none;">
+                    <h3>Generated Results</h3>
+                    <div class="result-group">
+                        <label for="concatenated-string" id="checksum-label">Checksum String:</label>
+                        <textarea id="concatenated-string" readonly></textarea>
+                        <button type="button" onclick="copyToClipboard('concatenated-string')" class="copy-btn">Copy</button>
+                    </div>
+                    <div class="result-group">
+                        <label for="calculated-checksum">SHA-256 Checksum:</label>
+                        <input type="text" id="calculated-checksum" readonly>
+                        <button type="button" onclick="copyToClipboard('calculated-checksum')" class="copy-btn">Copy</button>
+                    </div>
+                    <div class="result-group">
+                        <label for="cashier-url">Complete Cashier URL:</label>
+                        <textarea id="cashier-url" readonly></textarea>
+                        <div class="url-actions">
+                            <button type="button" onclick="copyToClipboard('cashier-url')" class="copy-btn">Copy URL</button>
+                            <button type="button" onclick="openCashierPage()" class="open-btn">Open in New Tab</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 Nuvei Payment Integration Tool</p>
+        <p>Sandbox Environment - For Development Use Only</p>
+        <p>Prompted by Daniel Barshai - Message on Teams for issues and suggestions</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
