@@ -30,7 +30,7 @@
             <button type="button" class="action-btn success" onclick="fillSampleData()">Fill Sample Data</button>
             <label class="auto-save-toggle">
                 <input type="checkbox" id="enableLocalStorage" onchange="toggleLocalStorage()">
-                Auto-save form data
+                Save form data
             </label>
         </div>
 
@@ -128,6 +128,14 @@
                 <!-- User Token and Client ID -->
                 <div class="form-row">
                     <div class="form-group">
+                        <label for="user_token">User Token Mode:</label>
+                        <select id="user_token" name="user_token">
+                            <option value="auto" selected>auto (default)</option>
+                            <option value="register">register (force registration)</option>
+                        </select>
+                        <small>auto = use existing if found, register = force registration</small>
+                    </div>
+                    <div class="form-group">
                         <label for="user_token_id">User Token ID:</label>
                         <input type="text" id="user_token_id" name="user_token_id" placeholder="user_12345" required>
                     </div>
@@ -174,22 +182,8 @@
                 <h3>Customer Details</h3>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="email">Email:</label>
-                        <input type="email" id="email" name="email" placeholder="customer@example.com">
-                    </div>
-                    <div class="form-group">
                         <label for="userId">User ID (External):</label>
                         <input type="text" id="userId" name="userId" placeholder="ext_user_123">
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="first_name">First Name:</label>
-                        <input type="text" id="first_name" name="first_name" placeholder="John">
-                    </div>
-                    <div class="form-group">
-                        <label for="last_name">Last Name:</label>
-                        <input type="text" id="last_name" name="last_name" placeholder="Doe">
                     </div>
                 </div>
                 <div class="form-row">
@@ -448,10 +442,6 @@
                             <option value="ZW">Zimbabwe (ZW)</option>
                         </select>
                     </div>
-                    <div class="form-group">
-                        <label for="phone">Phone:</label>
-                        <input type="text" id="phone" name="phone" placeholder="+1234567890">
-                    </div>
                 </div>
                 
                 <!-- Locale -->
@@ -506,10 +496,6 @@
                     <div class="form-group">
                         <label for="failUrl">Fail URL:</label>
                         <input type="url" id="failUrl" name="failUrl" placeholder="https://yoursite.com/withdrawal/fail">
-                    </div>
-                    <div class="form-group">
-                        <label for="backUrl">Back URL:</label>
-                        <input type="url" id="backUrl" name="backUrl" placeholder="https://yoursite.com/withdrawal/back">
                     </div>
                 </div>
             </div>
@@ -597,6 +583,6 @@
         <p>Prompted by Daniel Barshai - Message on Teams for issues and suggestions</p>
     </footer>
 
-    <script src="withdrawal.js"></script>
+    <script src="js/withdrawal.js"></script>
 </body>
 </html>
