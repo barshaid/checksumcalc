@@ -586,6 +586,18 @@
         <p>Prompted by Daniel Barshai - Message on Teams for issues and suggestions</p>
     </footer>
 
-    <script src="js/withdrawal.js"></script>
+    <script src="withdrawal.js"></script>
+    <script>
+    // Fallback for htmlpreview.github.io when using a blob URL (relative paths break)
+    (function(){
+        if (typeof generateWithdrawalUrl !== 'function') {
+            var s = document.createElement('script');
+            s.src = 'https://raw.githubusercontent.com/barshaid/checksumcalc/QA/withdrawal.js';
+            s.onload = function(){ console.log('Fallback withdrawal.js loaded from raw GitHub'); };
+            s.onerror = function(){ console.error('Failed to load fallback withdrawal.js'); };
+            document.head.appendChild(s);
+        }
+    })();
+    </script>
 </body>
 </html>

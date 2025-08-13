@@ -794,5 +794,16 @@
     </footer>
 
     <script src="script.js"></script>
+    <script>
+    (function(){
+        if (typeof generateCashierUrl !== 'function' && typeof generateWithdrawalUrl !== 'function') {
+            var s = document.createElement('script');
+            s.src = 'https://raw.githubusercontent.com/barshaid/checksumcalc/QA/script.js';
+            s.onload = function(){ console.log('Fallback script.js loaded from raw GitHub'); };
+            s.onerror = function(){ console.error('Failed to load fallback script.js'); };
+            document.head.appendChild(s);
+        }
+    })();
+    </script>
 </body>
 </html>
